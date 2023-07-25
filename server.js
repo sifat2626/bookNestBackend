@@ -19,7 +19,7 @@ app.use(helmet())
 
 
 // routes middleware
-readdirSync("./routes").map(r => app.use("/api/v1", require(`./routes/${r}`))) 
+// readdirSync("./routes").map(r => app.use("/api/v1", require(`./routes/${r}`)))
 
 
 
@@ -28,11 +28,11 @@ const port = process.env.PORT || 8000;
 
 // Connect to DB and start server
 mongoose
-    .connect(process.env.DATABASE)
-    .then(() => {
-        app.listen(port, () => {
-            console.log(`Server Running on port ${port}`);
-        });
-    })
-    .catch((err) => console.log(err));
+	.connect(process.env.DATABASE)
+	.then(() => {
+		app.listen(port, () => {
+			console.log(`Server Running on port ${port}`);
+		});
+	})
+	.catch((err) => console.log(err));
 
