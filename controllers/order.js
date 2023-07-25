@@ -3,7 +3,7 @@
 const Order = require('../models/Order');
 
 // GET all orders
-const getAllOrders = async (req, res) => {
+exports.getAllOrders = async (req, res) => {
 	try {
 		const orders = await Order.find().populate('user', 'name email').populate('book', 'title price');
 		res.json(orders);
@@ -13,7 +13,7 @@ const getAllOrders = async (req, res) => {
 };
 
 // GET a specific order by ID
-const getOrderById = async (req, res) => {
+exports.getOrderById = async (req, res) => {
 	try {
 		const order = await Order.findById(req.params.id).populate('user', 'name email').populate('book', 'title price');
 		if (!order) {
@@ -26,7 +26,7 @@ const getOrderById = async (req, res) => {
 };
 
 // CREATE a new order
-const createOrder = async (req, res) => {
+exports.createOrder = async (req, res) => {
 	const { user, book, quantity } = req.body;
 
 	try {
@@ -38,7 +38,7 @@ const createOrder = async (req, res) => {
 };
 
 // UPDATE an existing order
-const updateOrder = async (req, res) => {
+exports.updateOrder = async (req, res) => {
 	const { user, book, quantity } = req.body;
 
 	try {
@@ -57,7 +57,7 @@ const updateOrder = async (req, res) => {
 };
 
 // DELETE an order
-const deleteOrder = async (req, res) => {
+exports.deleteOrder = async (req, res) => {
 	try {
 		const order = await Order.findByIdAndDelete(req.params.id);
 		if (!order) {
@@ -69,10 +69,4 @@ const deleteOrder = async (req, res) => {
 	}
 };
 
-module.exports = {
-	getAllOrders,
-	getOrderById,
-	createOrder,
-	updateOrder,
-	deleteOrder
-};
+

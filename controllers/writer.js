@@ -3,7 +3,7 @@
 const Writer = require('../models/Writer');
 
 // GET all writers
-const getAllWriters = async (req, res) => {
+exports.getAllWriters = async (req, res) => {
 	try {
 		const writers = await Writer.find();
 		res.json(writers);
@@ -13,7 +13,7 @@ const getAllWriters = async (req, res) => {
 };
 
 // GET a specific writer by ID
-const getWriterById = async (req, res) => {
+exports.getWriterById = async (req, res) => {
 	try {
 		const writer = await Writer.findById(req.params.id);
 		if (!writer) {
@@ -26,7 +26,7 @@ const getWriterById = async (req, res) => {
 };
 
 // CREATE a new writer
-const createWriter = async (req, res) => {
+exports.createWriter = async (req, res) => {
 	const { name, biography } = req.body;
 
 	try {
@@ -38,7 +38,7 @@ const createWriter = async (req, res) => {
 };
 
 // UPDATE an existing writer
-const updateWriter = async (req, res) => {
+exports.updateWriter = async (req, res) => {
 	const { name, biography } = req.body;
 
 	try {
@@ -53,7 +53,7 @@ const updateWriter = async (req, res) => {
 };
 
 // DELETE a writer
-const deleteWriter = async (req, res) => {
+exports.deleteWriter = async (req, res) => {
 	try {
 		const writer = await Writer.findByIdAndDelete(req.params.id);
 		if (!writer) {
@@ -65,10 +65,4 @@ const deleteWriter = async (req, res) => {
 	}
 };
 
-module.exports = {
-	getAllWriters,
-	getWriterById,
-	createWriter,
-	updateWriter,
-	deleteWriter
-};
+

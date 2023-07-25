@@ -2,7 +2,7 @@ const Publication = require('../models/publication');
 const fs = require("fs");
 
 // GET all publications
-const getAllPublications = async (req, res) => {
+exports.getAllPublications = async (req, res) => {
 	try {
 		const publications = await Publication.find();
 		res.json(publications);
@@ -12,7 +12,7 @@ const getAllPublications = async (req, res) => {
 };
 
 // GET a specific publication by ID
-const getPublicationById = async (req, res) => {
+exports.getPublicationById = async (req, res) => {
 	try {
 		const publication = await Publication.findById(req.params.id);
 		if (!publication) {
@@ -25,7 +25,7 @@ const getPublicationById = async (req, res) => {
 };
 
 // CREATE a new publication
-const createPublication = async (req, res) => {
+exports.createPublication = async (req, res) => {
 	try{
 	  const { name, location } = req.fields;
 	  const {photo} = req.files;
@@ -54,7 +54,7 @@ const createPublication = async (req, res) => {
 };
 
 // UPDATE an existing publication
-const updatePublication = async (req, res) => {
+exports.updatePublication = async (req, res) => {
 	const { name, location } = req.body;
 
 	try {
@@ -69,7 +69,7 @@ const updatePublication = async (req, res) => {
 };
 
 // DELETE a publication
-const deletePublication = async (req, res) => {
+exports.deletePublication = async (req, res) => {
 	try {
 		const publication = await Publication.findByIdAndDelete(req.params.id);
 		if (!publication) {
@@ -82,10 +82,3 @@ const deletePublication = async (req, res) => {
 };
 
 
-module.exports = {
-	getAllPublications,
-	getPublicationById,
-	createPublication,
-	updatePublication,
-	deletePublication
-};
