@@ -6,11 +6,24 @@ const router = express.Router();
 const { requireSignin, isAdmin } =require("../middlewares/auth.js");
 // controllers
 const {
-  register,
+  register,login,logout,updateProfile,secret
 
 } =require("../controllers/auth.js");
 
 router.post("/register", register);
+router.post("/login", login);
+router.post("/logout", requireSignin, logout);
+router.get("/auth-check", requireSignin, (req, res) => {
+  res.json({ ok: true });
+});
+router.get("/admin-check", requireSignin, isAdmin, (req, res) => {
+  res.json({ ok: true });
+});
+
+router.put("/profile", requireSignin, updateProfile);
+
+// testing
+router.get("/secret", requireSignin, isAdmin, secret);
 
 
 module.exports= router;
