@@ -6,21 +6,21 @@ const router = express.Router();
 const { requireSignin, isAdmin } =require("../middlewares/auth.js");
 // controllers
 const {
-  register,
-  login,
-  secret,
-  updateProfile,
-  getOrders,
-  allOrders,
+	register,
+	login,
+	secret,
+	updateProfile,
+	logout
 } =require("../controllers/auth.js");
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/logout",requireSignin, logout);
 router.get("/auth-check", requireSignin, (req, res) => {
-  res.json({ ok: true });
+	res.json({ ok: true });
 });
 router.get("/admin-check", requireSignin, isAdmin, (req, res) => {
-  res.json({ ok: true });
+	res.json({ ok: true });
 });
 
 router.put("/profile", requireSignin, updateProfile);
@@ -29,7 +29,7 @@ router.put("/profile", requireSignin, updateProfile);
 router.get("/secret", requireSignin, isAdmin, secret);
 
 // orders
-router.get("/orders", requireSignin, getOrders);
-router.get("/all-orders", requireSignin, isAdmin, allOrders);
+// router.get("/orders", requireSignin, getOrders);
+// router.get("/all-orders", requireSignin, isAdmin, allOrders);
 
 module.exports= router;
