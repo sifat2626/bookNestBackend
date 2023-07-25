@@ -1,5 +1,3 @@
-// controllers/publication.js
-
 const Publication = require('../models/publication');
 const fs = require("fs");
 
