@@ -2,9 +2,26 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a3560806-6c64-45f4-a69e-6c15e639bd34" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/controllers/book.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/order.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/publication.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/writer.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/book.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/publication.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/review.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/writer.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routes/book.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routes/order.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routes/publication.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routes/writer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/auth.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/category.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/category.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/product.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/category.js" beforeDir="false" afterPath="$PROJECT_DIR$/models/category.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/order.js" beforeDir="false" afterPath="$PROJECT_DIR$/models/order.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/product.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/category.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/category.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/product.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,7 +87,7 @@
       <workItem from="1689827702097" duration="143000" />
       <workItem from="1690209296169" duration="2935000" />
       <workItem from="1690251234806" duration="371000" />
-      <workItem from="1690252858531" duration="3845000" />
+      <workItem from="1690252858531" duration="4608000" />
     </task>
     <servers />
   </component>

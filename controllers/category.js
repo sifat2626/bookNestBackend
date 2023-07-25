@@ -1,86 +1,84 @@
-const Category =require("../models/category.js");
-const Product =require("../models/product.js");
-const slugify =require("slugify");
+const Category = require('../models/Category');
 
-exports.create = async (req, res) => {
-  try {
-    const { name } = req.body;
-    if (!name.trim()) {
-      return res.json({ error: "Name is required" });
-    }
-    const existingCategory = await Category.findOne({ name });
-    if (existingCategory) {
-      return res.json({ error: "Already exists" });
-    }
-
-    const category = await new Category({ name, slug: slugify(name) }).save();
-    res.json(category);
-  } catch (err) {
-    console.log(err);
-    return res.status(400).json(err);
-  }
+// GET all categories
+const getAllCategories = async (req, res) => {
+	try {
+		const categories = await Category.find();
+		res.json(categories);
+	} catch (error) {
+		res.status(500).json({ message: 'Error occurred while retrieving categories.' });
+	}
 };
 
-exports.update = async (req, res) => {
-  try {
-    const { name } = req.body;
-    console.log(req.params)
-    const { categoryId } = req.params;
-    const category = await Category.findByIdAndUpdate(
-      categoryId,
-      {
-        name,
-        slug: slugify(name),
-      },
-      { new: true }
-    );
-    res.json(category);
-  } catch (err) {
-    console.log(err);
-    return res.status(400).json(err.message);
-  }
+// GET a specific category by ID
+const getCategoryById = async (req, res) => {
+	try {
+		const category = await Category.findById(req.params.id);
+		if (!category) {
+			return res.status(404).json({ message: 'Category not found.' });
+		}
+		res.json(category);
+	} catch (error) {
+		res.status(500).json({ message: 'Error occurred while retrieving the category.' });
+	}
 };
 
-exports.remove = async (req, res) => {
-  try {
-    const removed = await Category.findByIdAndDelete(req.params.categoryId);
-    res.json(removed);
-  } catch (err) {
-    console.log(err);
-    return res.status(400).json(err.message);
-  }
+
+// CREATE a new category
+const createCategory = async (req, res) => {
+	const { name } = req.body;
+
+	try {
+		// Check if a category with the same name already exists
+		const existingCategory = await Category.findOne({ name });
+		if (existingCategory) {
+			return res.status(400).json({ message: 'Category with the same name already exists.' });
+		}
+
+		// Create the category if it doesn't already exist
+		const category = await Category.create({ name });
+		res.status(201).json(category);
+	} catch (error) {
+		res.status(400).json({ message: 'Error occurred while creating the category.' });
+	}
 };
 
-exports.list = async (req, res) => {
-  try {
-    const all = await Category.find({});
-    res.json(all);
-  } catch (err) {
-    console.log(err);
-    return res.status(400).json(err.message);
-  }
+const updateCategory = async (req, res) => {
+	const { name } = req.body;
+
+	try {
+		const existingCategory = await Category.findOne({ name });
+		if (existingCategory) {
+			return res.status(400).json({ message: 'Category with the same name already exists.' });
+		}
+
+		const category = await Category.findByIdAndUpdate(req.params.id, { name }, { new: true });
+		if (!category) {
+			return res.status(404).json({ message: 'Category not found.' });
+		}
+		res.json(category);
+	} catch (error) {
+		res.status(400).json({ message: 'Error occurred while updating the category.' });
+	}
 };
 
-exports.read = async (req, res) => {
-  try {
-    const category = await Category.findOne({ slug: req.params.slug });
-    res.json(category);
-  } catch (err) {
-    console.log(err);
-    return res.status(400).json(err.message);
-  }
+// DELETE a category
+const deleteCategory = async (req, res) => {
+	try {
+		const category = await Category.findByIdAndDelete(req.params.id);
+		if (!category) {
+			return res.status(404).json({ message: 'Category not found.' });
+		}
+		res.json({ message: 'Category deleted successfully.' });
+	} catch (error) {
+		res.status(400).json({ message: 'Error occurred while deleting the category.' });
+	}
 };
 
-exports.productsByCategory = async (req, res) => {
-  try {
-    const category = await Category.findOne({ slug: req.params.slug });
-    const products = await Product.find({ category }).populate("category");
-
-    res.json({
-      category,
-      products,
-    });
-  } catch (err) {
-    console.log(err);
-  }
+module.exports = {
+	getAllCategories,
+	getCategoryById,
+	createCategory,
+	updateCategory,
+	deleteCategory
 };
