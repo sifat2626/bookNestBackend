@@ -9,11 +9,7 @@ const writerSchema = new mongoose.Schema({
 	biography: {
 		type: String,
 		required: true
-	},
-	photo:{
-		data: Buffer,
-		contentType: String,
-	},
+	}
 
 
 });
