@@ -1,6 +1,6 @@
 // controllers/publication.js
 
-const Publication = require('../models/publication');
+const Publication = require('../models/Publication');
 const fs = require("fs");
 
 // GET all publications
@@ -29,16 +29,16 @@ const getPublicationById = async (req, res) => {
 // CREATE a new publication
 const createPublication = async (req, res) => {
 	try{
-	  const { name, location } = req.fields;
-	  const {photo} = req.files;
+		const { name, location } = req.fields;
+		const {photo} = req.files;
 
 		if(!name?.trim){
 			return res.json({ error: "Name is required" });
 		}else if(!location?.trim){
 			return res.json({ error: "Location is required" });
 		}else if(photo && photo.size > 1000000){
-		  return res.json({ error: "Image should be less than 1mb in size" });
-	  }
+			return res.json({ error: "Image should be less than 1mb in size" });
+		}
 		const existingPublication = await Publication.findOne({name});
 		if(existingPublication){
 			res.status(400).json({ message: 'Publication already exists' });
