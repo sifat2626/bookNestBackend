@@ -2,7 +2,7 @@ const User =require("../models/user.js");
 const { hashPassword, comparePassword } =require("../helpers/auth.js");
 const jwt =require("jsonwebtoken");
 require("dotenv").config();
-const Order =require("../models/order.js");
+
 
 
 
@@ -124,53 +124,6 @@ exports.secret = async (req, res) => {
   res.json({ currentUser: req.user });
 };
 
-exports.updateProfile = async (req, res) => {
-  try {
-    // Get the user ID from the request's authenticated user
-    const userId = req.user._id;
-
-    // 1. destructure updated fields from req.body
-    const { name, password } = req.body;
-
-    // 2. Validate updated fields (you can add more validation as needed)
-    if (!name.trim()) {
-      return res.json({ error: "Name is required" });
-    }
-    if (password && password.length < 6) {
-      return res.json({ error: "Password must be at least 6 characters long" });
-    }
-
-    // 3. Hash the password if provided
-    let hashedPassword = null;
-    if (password) {
-      hashedPassword = await hashPassword(password);
-    }
-
-    // 4. Update the user's profile
-    const updatedFields = {
-      name,
-    };
-    if (hashedPassword) {
-      updatedFields.password = hashedPassword;
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(userId, updatedFields, {
-      new: true, // Return the updated document
-    });
-
-    // 5. Send response with updated user information
-    res.json({
-      user: {
-        name: updatedUser.name,
-        email: updatedUser.email,
-        role: updatedUser.role,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Failed to update profile" });
-  }
-};
 
 exports.getUserById = async (req,res) =>{
   try{

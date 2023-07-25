@@ -6,7 +6,7 @@ const router = express.Router();
 const { requireSignin, isAdmin } =require("../middlewares/auth.js");
 // controllers
 const {
-  register,login,logout,updateProfile,secret
+  register,login,logout,secret
 
 } =require("../controllers/auth.js");
 
@@ -20,7 +20,6 @@ router.get("/admin-check", requireSignin, isAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-router.put("/profile", requireSignin, updateProfile);
 
 // testing
 router.get("/secret", requireSignin, isAdmin, secret);
