@@ -1,22 +1,24 @@
-const express = require('express');
+const express =require("express");
+
 const router = express.Router();
 
-const category = require('../controllers/category');
-const { requireSignin, isAdmin } = require('../middlewares/auth');
+// middlewares
+const { requireSignin, isAdmin } =require("../middlewares/auth.js");
+// controllers
+const {
+  create,
+  update,
+  remove,
+  list,
+  read,
+  productsByCategory,
+} =require("../controllers/category.js");
 
-// GET all categories
-router.get('/categories', category.getAllCategories);
+router.post("/category", requireSignin, isAdmin, create);
+router.put("/category/:categoryId", requireSignin, isAdmin, update);
+router.delete("/category/:categoryId", requireSignin, isAdmin, remove);
+router.get("/categories", list);
+router.get("/category/:slug", read);
+router.get("/products-by-category/:slug", productsByCategory);
 
-// GET a specific category by ID
-router.get('/categories/:id', category.getCategoryById);
-
-// CREATE a new category
-router.post('/categories', requireSignin, isAdmin, category.createCategory);
-
-// UPDATE an existing category
-router.put('/categories/:id', requireSignin, isAdmin, category.updateCategory);
-
-// DELETE a category
-router.delete('/categories/:id', requireSignin, isAdmin, category.deleteCategory);
-
-module.exports = router;
+module.exports= router;
