@@ -1,4 +1,4 @@
-const Writer = require('../models/Writer');
+const Writer = require('../models/writer');
 
 exports.createWriter = async (req,res) => {
 	try {
