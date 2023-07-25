@@ -126,33 +126,49 @@ exports.secret = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, password, address } = req.body;
-    const user = await User.findById(req.user._id);
+    // Get the user ID from the request's authenticated user
+    const userId = req.user._id;
 
+    // 1. destructure updated fields from req.body
+    const { name, password } = req.body;
 
-    // check password length
-    if (password && password.length < 6) {
-      return res.json({
-        error: "Password is required and should be min 6 characters long",
-      });
+    // 2. Validate updated fields (you can add more validation as needed)
+    if (!name.trim()) {
+      return res.json({ error: "Name is required" });
     }
-    // hash the password
-    const hashedPassword = password ? await hashPassword(password) : undefined;
+    if (password && password.length < 6) {
+      return res.json({ error: "Password must be at least 6 characters long" });
+    }
 
-    const updated = await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        name: name || user.name,
-        password: hashedPassword || user.password,
-        address: address || user.address,
+    // 3. Hash the password if provided
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await hashPassword(password);
+    }
+
+    // 4. Update the user's profile
+    const updatedFields = {
+      name,
+    };
+    if (hashedPassword) {
+      updatedFields.password = hashedPassword;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedFields, {
+      new: true, // Return the updated document
+    });
+
+    // 5. Send response with updated user information
+    res.json({
+      user: {
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
       },
-      { new: true }
-    );
-
-    updated.password = undefined;
-    res.json(updated);
+    });
   } catch (err) {
     console.log(err);
+    res.status(500).json({ error: "Failed to update profile" });
   }
 };
 
