@@ -5,6 +5,9 @@ const Publication = require("../models/publication");
 const Writer = require("../models/writer");
 
 
+
+
+
 // GET all books
 exports.getAllBooks = async (req, res) => {
 	try {
@@ -146,30 +149,6 @@ exports.deleteBook = async (req, res) => {
 	}
 };
 
-exports.searchBook = async (req, res) => {
-	try {
-		// Get the search query from the request parameters
-		const { query } = req.params;
-
-		// Perform a case-insensitive search for books with matching title or author
-		const searchResults = await Book.find({
-			$or: [
-				{ title: { $regex: query, $options: 'i' } },
-				{ author: { $regex: query, $options: 'i' } },
-			],
-		})
-			.populate('author', 'name') // Populate the author field with the name only
-			.populate('category', 'name') // Populate the category field with the name only
-			.populate('publication', 'name') // Populate the publication field with the name only
-			.select('title author category publication'); // Select specific fields to return
-
-		// Send the search results as the response
-		res.json(searchResults);
-	} catch (err) {
-		console.log(err);
-		res.status(500).json({ error: 'Failed to search for books' });
-	}
-};
 
 exports.searchBooksByCategory = async (req, res) => {
 	try {
@@ -256,4 +235,26 @@ exports.searchBooksByAuthor = async (req, res) => {
 		res.status(500).json({ message: 'Error occurred while searching for books by the author.' });
 	}
 };
+exports.searchBooksByTitle = async (req, res) => {
+	try {
+		const bookTitle = req.params.bookTitle;
 
+		// Use the $regex operator with 'i' option for case-insensitive search
+		const books = await Book.find({
+			title: { $regex: new RegExp(bookTitle, 'i') },
+		})
+			.populate('author', 'name') // Populate the author field with the name only
+			.populate('category', 'name') // Populate the category field with the name only
+			.populate('publication', 'name') // Populate the publication field with the name only
+			.select('title author category publication photo'); // Select specific fields to return
+
+		if (books.length === 0) {
+			return res.status(404).json({ message: 'No books found with the specified title.' });
+		}
+
+		res.json(books);
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error occurred while searching for books.' });
+	}
+};
