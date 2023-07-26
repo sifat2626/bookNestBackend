@@ -1,6 +1,8 @@
 const Book = require('../models/book');
 const fs = require("fs");
 const Category = require("../models/category");
+const Publication = require("../models/publication");
+const Writer = require("../models/writer");
 
 
 // GET all books
@@ -195,6 +197,63 @@ exports.searchBooksByCategory = async (req, res) => {
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ message: 'Error occurred while searching for books in the category.' });
+	}
+};
+exports.searchBooksByPublication = async (req, res) => {
+	try {
+		const publicationName = req.params.publicationName;
+
+		// Find the publication by name
+		const publication = await Publication.findOne({ name: { $regex: new RegExp(publicationName, 'i') } });
+
+		if (!publication) {
+			return res.status(404).json({ message: 'Publication not found.' });
+		}
+
+		// Use the publication ID to find books with that publication
+		const books = await Book.find({ publication: publication._id })
+			.populate('author', 'name') // Populate the author field with the name only
+			.populate('category', 'name') // Populate the category field with the name only
+			.populate('publication', 'name') // Populate the publication field with the name only
+			.select('title author category publication'); // Select specific fields to return
+
+		if (books.length === 0) {
+			return res.status(404).json({ message: 'No books found from the specified publication.' });
+		}
+
+		res.json(books);
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error occurred while searching for books from the publication.' });
+	}
+};
+
+exports.searchBooksByAuthor = async (req, res) => {
+	try {
+		const authorName = req.params.authorName;
+
+		// Find the author by name
+		const author = await Writer.findOne({ name: { $regex: new RegExp(authorName, 'i') } });
+
+		if (!author) {
+			return res.status(404).json({ message: 'Author not found.' });
+		}
+
+		// Use the author ID to find books written by that author
+		const books = await Book.find({ author: author._id })
+			.populate('author', 'name') // Populate the author field with the name only
+			.populate('category', 'name') // Populate the category field with the name only
+			.populate('publication', 'name') // Populate the publication field with the name only
+			.select('title author category publication'); // Select specific fields to return
+
+		if (books.length === 0) {
+			return res.status(404).json({ message: 'No books found by the specified author.' });
+		}
+
+		res.json(books);
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error occurred while searching for books by the author.' });
 	}
 };
 
