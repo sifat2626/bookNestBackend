@@ -1,23 +1,23 @@
 const Book = require('../models/book');
 const fs = require("fs");
+const Category = require("../models/category");
 
 
 // GET all books
-const getAllBooks = async (req, res) => {
+exports.getAllBooks = async (req, res) => {
 	try {
 		const books = await Book.find()
 			.populate('author', 'name')
-			.populate('categories', 'name')
+			.populate('category', 'name')
 			.populate('publication', 'name')
-			.populate('reviews', 'title');
 		res.json(books);
 	} catch (error) {
-		res.status(500).json({ message: 'Error occurred while retrieving books.' });
+		res.status(500).json({ message: 'Error occurred while retrieving books.',error });
 	}
 };
 
 // GET a specific book by ID
-const getBookById = async (req, res) => {
+exports.getBookById = async (req, res) => {
 	try {
 		const book = await Book.findById(req.params.id)
 			.populate('author', 'name')
@@ -39,7 +39,7 @@ const getBookById = async (req, res) => {
 
 
 // Controller to create a new book
-const createBook = async (req, res) => {
+exports.createBook = async (req, res) => {
 	try {
 		const { title, author, description, price, discount, category, publication, stock } = req.fields;
 		const photo = req.files?.photo; // Assuming the field name for the photo is 'photo'.
@@ -84,7 +84,7 @@ const createBook = async (req, res) => {
 
 // UPDATE an existing book
 // Controller to update an existing book
-const updateBook = async (req, res) => {
+exports.updateBook = async (req, res) => {
 	try {
 		const { title, author, description, price, discount, category, publication, stock } = req.fields;
 		const photo = req.files?.photo; // Assuming the field name for the photo is 'photo'.
@@ -132,7 +132,7 @@ const updateBook = async (req, res) => {
 };
 
 // DELETE a book
-const deleteBook = async (req, res) => {
+exports.deleteBook = async (req, res) => {
 	try {
 		const book = await Book.findByIdAndDelete(req.params.id);
 		if (!book) {
@@ -144,29 +144,57 @@ const deleteBook = async (req, res) => {
 	}
 };
 
-const booksByCategory = async (req, res) => {
+exports.searchBook = async (req, res) => {
 	try {
-		const categoryId = req.params.categoryId;
+		// Get the search query from the request parameters
+		const { query } = req.params;
 
-		// Find all books that have the specified category in their category array
-		const books = await Book.find({ category: categoryId }).populate('author category publication');
+		// Perform a case-insensitive search for books with matching title or author
+		const searchResults = await Book.find({
+			$or: [
+				{ title: { $regex: query, $options: 'i' } },
+				{ author: { $regex: query, $options: 'i' } },
+			],
+		})
+			.populate('author', 'name') // Populate the author field with the name only
+			.populate('category', 'name') // Populate the category field with the name only
+			.populate('publication', 'name') // Populate the publication field with the name only
+			.select('title author category publication'); // Select specific fields to return
 
-		if (books.length === 0) {
-			return res.status(404).json({ message: 'No books found for the specified category' });
-		}
-
-		res.status(200).json(books);
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({ error: 'An error occurred while fetching books by category' });
+		// Send the search results as the response
+		res.json(searchResults);
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: 'Failed to search for books' });
 	}
 };
 
-module.exports = {
-	getAllBooks,
-	getBookById,
-	createBook,
-	updateBook,
-	deleteBook,
-	booksByCategory
+exports.searchBooksByCategory = async (req, res) => {
+	try {
+		const categoryName = req.params.categoryName;
+
+		// Find the category by name
+		const category = await Category.findOne({ name: { $regex: new RegExp(categoryName, 'i') } });
+
+		if (!category) {
+			return res.status(404).json({ message: 'Category not found.' });
+		}
+
+		// Use the category ID to find books with that category
+		const books = await Book.find({ category: category._id })
+			.populate('author', 'name') // Populate the author field with the name only
+			.populate('category', 'name') // Populate the category field with the name only
+			.populate('publication', 'name') // Populate the publication field with the name only
+			.select('title author category publication'); // Select specific fields to return
+
+		if (books.length === 0) {
+			return res.status(404).json({ message: 'No books found in the specified category.' });
+		}
+
+		res.json(books);
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error occurred while searching for books in the category.' });
+	}
 };
+

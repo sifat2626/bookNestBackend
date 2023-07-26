@@ -9,10 +9,6 @@ const publicationSchema = new mongoose.Schema({
 	},
 	location:{
 		type:String,
-	},
-	photo:{
-		data: Buffer,
-		contentType: String,
 	}
 
 });

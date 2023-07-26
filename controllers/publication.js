@@ -28,25 +28,18 @@ exports.getPublicationById = async (req, res) => {
 exports.createPublication = async (req, res) => {
 	try{
 	  const { name, location } = req.fields;
-	  const {photo} = req.files;
 
 		if(!name?.trim){
 			return res.json({ error: "Name is required" });
 		}else if(!location?.trim){
 			return res.json({ error: "Location is required" });
-		}else if(photo && photo.size > 1000000){
-		  return res.json({ error: "Image should be less than 1mb in size" });
-	  }
+		}
 		const existingPublication = await Publication.findOne({name});
 		if(existingPublication){
 			res.status(400).json({ message: 'Publication already exists' });
 		}
 		const publication = await Publication.create({ name, location });
-		if (photo) {
-			publication.photo.data = fs.readFileSync(photo.path);
-			publication.photo.contentType = photo.type;
-		}
-		await publication.save();
+
 		res.status(201).json(publication);
 	} catch (error) {
 		res.status(400).json({ message: 'Error occurred while creating the publication.' });
