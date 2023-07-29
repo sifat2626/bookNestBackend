@@ -27,10 +27,10 @@ const getWriterById = async (req, res) => {
 
 // CREATE a new writer
 const createWriter = async (req, res) => {
-	const { name, biography } = req.body;
+	const { name, biography,photo } = req.body;
 
 	try {
-		const writer = await Writer.create({ name, biography });
+		const writer = await Writer.create({ name, biography,photo });
 		res.status(201).json(writer);
 	} catch (error) {
 		res.status(400).json({ message: 'Error occurred while creating the writer.' });
@@ -39,10 +39,10 @@ const createWriter = async (req, res) => {
 
 // UPDATE an existing writer
 const updateWriter = async (req, res) => {
-	const { name, biography } = req.body;
+	const { name, biography,photo } = req.body;
 
 	try {
-		const writer = await Writer.findByIdAndUpdate(req.params.id, { name, biography }, { new: true });
+		const writer = await Writer.findByIdAndUpdate(req.params.id, { name,photo, biography }, { new: true });
 		if (!writer) {
 			return res.status(404).json({ message: 'Writer not found.' });
 		}

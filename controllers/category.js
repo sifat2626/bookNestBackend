@@ -26,7 +26,7 @@ const getCategoryById = async (req, res) => {
 
 // CREATE a new category
 const createCategory = async (req, res) => {
-	const { name } = req.body;
+	const { name,photo } = req.body;
 
 	try {
 		// Check if a category with the same name already exists
@@ -36,7 +36,7 @@ const createCategory = async (req, res) => {
 		}
 
 		// Create the category if it doesn't already exist
-		const category = await Category.create({ name });
+		const category = await Category.create({ name ,photo});
 		res.status(201).json(category);
 	} catch (error) {
 		res.status(400).json({ message: error });
@@ -44,7 +44,7 @@ const createCategory = async (req, res) => {
 };
 
 const updateCategory = async (req, res) => {
-	const { name } = req.body;
+	const { name,photo } = req.body;
 
 	try {
 		const existingCategory = await Category.findOne({ name });
@@ -52,7 +52,7 @@ const updateCategory = async (req, res) => {
 			return res.status(400).json({ message: 'Category with the same name already exists.' });
 		}
 
-		const category = await Category.findByIdAndUpdate(req.params.id, { name }, { new: true });
+		const category = await Category.findByIdAndUpdate(req.params.id, { name,photo }, { new: true });
 		if (!category) {
 			return res.status(404).json({ message: 'Category not found.' });
 		}

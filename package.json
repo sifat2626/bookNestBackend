@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "server": "nodemon server.js"
+    "startDev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +14,7 @@
     "@sendgrid/mail": "^7.7.0",
     "bcrypt": "^5.1.0",
     "braintree": "^3.16.0",
+    "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "escape-string-regexp": "^5.0.0",
@@ -24,6 +25,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.2",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.9.4",
     "slugify": "^1.6.5"
   },
   "devDependencies": {

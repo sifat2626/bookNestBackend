@@ -27,10 +27,10 @@ exports.getOrderById = async (req, res) => {
 
 // CREATE a new order
 exports.createOrder = async (req, res) => {
-	const { user, book, quantity } = req.body;
+	const { user, book, quantity,orderDetails } = req.body;
 
 	try {
-		const order = await Order.create({ user, book, quantity });
+		const order = await Order.create({ user, book, quantity,orderDetails });
 		res.status(201).json(order);
 	} catch (error) {
 		res.status(400).json({ message: 'Error occurred while creating the order.' });
@@ -39,12 +39,12 @@ exports.createOrder = async (req, res) => {
 
 // UPDATE an existing order
 exports.updateOrder = async (req, res) => {
-	const { user, book, quantity } = req.body;
+	const { status } = req.body;
 
 	try {
 		const order = await Order.findByIdAndUpdate(
 			req.params.id,
-			{ user, book, quantity },
+			{ status },
 			{ new: true }
 		).populate('user', 'name email').populate('book', 'title price');
 		if (!order) {
@@ -57,16 +57,16 @@ exports.updateOrder = async (req, res) => {
 };
 
 // DELETE an order
-exports.deleteOrder = async (req, res) => {
-	try {
-		const order = await Order.findByIdAndDelete(req.params.id);
-		if (!order) {
-			return res.status(404).json({ message: 'Order not found.' });
-		}
-		res.json({ message: 'Order deleted successfully.' });
-	} catch (error) {
-		res.status(400).json({ message: 'Error occurred while deleting the order.' });
-	}
-};
+// exports.deleteOrder = async (req, res) => {
+// 	try {
+// 		const order = await Order.findByIdAndDelete(req.params.id);
+// 		if (!order) {
+// 			return res.status(404).json({ message: 'Order not found.' });
+// 		}
+// 		res.json({ message: 'Order deleted successfully.' });
+// 	} catch (error) {
+// 		res.status(400).json({ message: 'Error occurred while deleting the order.' });
+// 	}
+// };
 
 
