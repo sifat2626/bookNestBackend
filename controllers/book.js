@@ -28,10 +28,6 @@ exports.getAllBooks = async (req, res) => {
 exports.getBookById = async (req, res) => {
 	try {
 		const book = await Book.findById(req.params.id)
-			.populate('author', 'name')
-			.populate('categories', 'name')
-			.populate('publication', 'name')
-			.populate('reviews', 'title');
 		if (!book) {
 			return res.status(404).json({ message: 'Book not found.' });
 		}
@@ -91,54 +87,51 @@ exports.createBook = async (req, res) => {
 	}
 };
 
-// Controller to update an existing book
+
+
 exports.updateBook = async (req, res) => {
 	try {
-		const { title, author, description, price, discount, category, publication, stock } = req.body;
-		const photo = req.files?.photo; // Assuming the field name for the photo is 'photo'.
-		const bookId = req.params.id; // Assuming you are passing the book ID in the URL parameter.
+		// Extract book ID from the URL params
+		const bookId = req.params.bookId;
 
-		// Validate required fields
-		if (!title?.trim() || !author?.trim() || !description?.trim() || !price || !stock) {
-			return res.status(400).json({ error: 'title, author, description, price, and stock are required' });
-		}
+		// Find the book by its ID
+		const bookToUpdate = await Book.findById(bookId);
 
-		// Find the existing book by ID
-		const existingBook = await Book.findById(bookId);
-
-		if (!existingBook) {
+		if (!bookToUpdate) {
 			return res.status(404).json({ error: 'Book not found' });
 		}
 
-		// Upload the new photo to Cloudinary if provided
-		let photoUrl = existingBook.photo;
-		if (photo) {
+		// Update the book details with the new values from the form fields
+		const { title, author, description, price, category, publication, stock } = req.fields;
+		bookToUpdate.title = title || bookToUpdate.title;
+		bookToUpdate.author = author || bookToUpdate.author;
+		bookToUpdate.description = description || bookToUpdate.description;
+		bookToUpdate.price = price || bookToUpdate.price;
+		bookToUpdate.category = category || bookToUpdate.category;
+		bookToUpdate.publication = publication || bookToUpdate.publication;
+		bookToUpdate.stock = stock || bookToUpdate.stock;
+
+		// Handle photo update
+		if (req.files && req.files.photo) {
+			const photo = req.files.photo;
+
 			// Validate photo size
 			if (photo.size > 1000000) {
 				return res.status(400).json({ error: 'Image should be less than 1mb in size' });
 			}
 
+			// Upload the new photo to Cloudinary
 			const result = await cloudinary.uploader.upload(photo.path, {
 				folder: 'bookNest/bookPhotos', // Specify the folder in Cloudinary to store book photos
 			});
-			photoUrl = result.secure_url;
+			bookToUpdate.photo = result.secure_url;
+			console.log('Cloudinary result:', result);
 		}
 
-		// Update the book properties
-		existingBook.title = title;
-		existingBook.author = author;
-		existingBook.description = description;
-		existingBook.price = price;
-		existingBook.discount = discount || 0;
-		existingBook.category = category || [];
-		existingBook.publication = publication;
-		existingBook.stock = stock;
-		existingBook.photo = photoUrl;
-
 		// Save the updated book to the database
-		await existingBook.save();
+		await bookToUpdate.save();
 
-		res.status(200).json(existingBook);
+		res.status(200).json(bookToUpdate);
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: 'An error occurred while updating the book' });

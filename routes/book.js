@@ -16,6 +16,8 @@ router.get('/books/:id', getBookById);
 // CREATE a new book
 router.post('/books', requireSignin, isAdmin,formidable(), createBook);
 
+router.put('/books/:bookId', requireSignin, isAdmin,formidable(), updateBook);
+
 router.get('/search/category/:categoryName',searchBooksByCategory);
 
 router.get('/search/publication/:publicationName',searchBooksByPublication);
