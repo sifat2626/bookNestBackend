@@ -56,7 +56,7 @@ exports.createBook = async (req, res) => {
 		}
 		console.log(`photo is `+photo)
 		// Upload the photo to Cloudinary
-		let photoUrl = null;
+		let photoUrl = "https://i.postimg.cc/jS4qxYt9/Bright-Dots.jpg";
 		if (photo) {
 			const result = await cloudinary.uploader.upload(photo.path, {
 				folder: 'bookNest/bookPhotos', // Specify the folder in Cloudinary to store book photos

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const formidable= require('express-formidable');
 
 const { getAllWriters, getWriterById, createWriter, updateWriter, deleteWriter } = require('../controllers/writer');
 const { requireSignin, isAdmin } = require('../middlewares/auth');
@@ -11,10 +12,10 @@ router.get('/writers', getAllWriters);
 router.get('/writers/:id', getWriterById);
 
 // CREATE a new writer
-router.post('/writers', requireSignin, isAdmin, createWriter);
+router.post('/writers', requireSignin, isAdmin,formidable(), createWriter);
 
 // UPDATE an existing writer
-router.put('/writers/:id', requireSignin, isAdmin, updateWriter);
+router.put('/writers/:id', requireSignin, isAdmin,formidable(), updateWriter);
 
 // DELETE a writer
 router.delete('/writers/:id', requireSignin, isAdmin, deleteWriter);

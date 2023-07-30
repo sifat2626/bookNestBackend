@@ -18,6 +18,10 @@ const bookSchema = new mongoose.Schema({
 	photo: {
 		type: String, // Store the Cloudinary URL as a string
 	},
+	cphoto: {
+		type: String,
+		default:"https://i.postimg.cc/jS4qxYt9/Bright-Dots.jpg"
+	},
 	price: {
 		type: Number,
 		required: true,

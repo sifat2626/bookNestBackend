@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const formidable= require('express-formidable');
 
 const {
 	getAllPublications,
@@ -18,10 +18,10 @@ router.get('/publications', getAllPublications);
 router.get('/publications/:id', getPublicationById);
 
 // CREATE a new publication
-router.post('/publications',requireSignin,isAdmin, createPublication);
+router.post('/publications',requireSignin,isAdmin,formidable(), createPublication);
 
 // UPDATE an existing publication
-router.put('/publications/:id', updatePublication);
+router.put('/publications/:id',requireSignin,isAdmin,formidable(), updatePublication);
 
 // DELETE a publication
 router.delete('/publications/:id', deletePublication);
