@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const formidable =require("express-formidable");
+const formidable= require('express-formidable');
+
 
 const { getAllBooks, getBookById, createBook, updateBook, deleteBook,searchBooksByTitle,searchBooksByCategory,searchBooksByPublication,searchBooksByAuthor } = require('../controllers/book');
 const { requireSignin, isAdmin } = require('../middlewares/auth');
+
 
 // GET all books
 router.get('/books', getAllBooks);
@@ -13,6 +15,8 @@ router.get('/books/:id', getBookById);
 
 // CREATE a new book
 router.post('/books', requireSignin, isAdmin,formidable(), createBook);
+
+router.put('/books/:bookId', requireSignin, isAdmin,formidable(), updateBook);
 
 router.get('/search/category/:categoryName',searchBooksByCategory);
 
@@ -24,8 +28,12 @@ router.get('/search/book/:bookTitle',searchBooksByTitle);
 
 
 
+
+
+
+
 // UPDATE an existing book
-router.put('/books/:id', requireSignin, isAdmin,formidable(), updateBook);
+router.put('/books/:id', requireSignin, isAdmin, updateBook);
 
 // DELETE a book
 router.delete('/books/:id', requireSignin, isAdmin, deleteBook);

@@ -4,47 +4,51 @@ const bookSchema = new mongoose.Schema({
 	title: {
 		type: String,
 		required: true,
-		trim: true
+		trim: true,
 	},
 	author: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Writer',
-		required: true
+		required: true,
 	},
 	description: {
 		type: String,
-		required: true
+		required: true,
 	},
 	photo: {
-		data: Buffer,
-		contentType: String,
+		type: String, // Store the Cloudinary URL as a string
 	},
-
+	cphoto: {
+		type: String,
+		default:"https://i.postimg.cc/jS4qxYt9/Bright-Dots.jpg"
+	},
 	price: {
 		type: Number,
-		required: true
+		required: true,
 	},
-	discount:{
-		type:Number,
-		default:0,
+	discount: {
+		type: Number,
+		default: 0,
 	},
 	category: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Category'
+		ref: 'Category',
 	},
 	publication: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Publication',
-		required: true
+		required: true,
 	},
-	reviews: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Review'
-	}],
+	reviews: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Review',
+		},
+	],
 	stock: {
 		type: Number,
-		default: 0
-	}
+		default: 0,
+	},
 });
 
 const Book = mongoose.model('Book', bookSchema);

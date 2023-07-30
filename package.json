@@ -13,6 +13,7 @@
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
     "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
     "braintree": "^3.16.0",
     "cloudinary": "^1.39.0",
     "cors": "^2.8.5",
@@ -26,6 +27,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.2",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "slugify": "^1.6.5"
   },
   "devDependencies": {

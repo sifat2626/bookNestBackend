@@ -1,12 +1,15 @@
+const cloudinary = require('cloudinary').v2;
 const Book = require('../models/book');
-const fs = require("fs");
-const Category = require("../models/category");
-const Publication = require("../models/publication");
-const Writer = require("../models/writer");
+const Category = require('../models/category');
+const Publication = require('../models/publication');
+const Writer = require('../models/writer');
 
-
-
-
+// Configure Cloudinary with your Cloudinary credentials
+cloudinary.config({
+	cloud_name: process.env.CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_KEY,
+	api_secret: process.env.CLOUDINARY_SECRET
+});
 
 // GET all books
 exports.getAllBooks = async (req, res) => {
@@ -14,10 +17,10 @@ exports.getAllBooks = async (req, res) => {
 		const books = await Book.find()
 			.populate('author', 'name')
 			.populate('category', 'name')
-			.populate('publication', 'name')
+			.populate('publication', 'name');
 		res.json(books);
 	} catch (error) {
-		res.status(500).json({ message: 'Error occurred while retrieving books.',error });
+		res.status(500).json({ message: 'Error occurred while retrieving books.', error });
 	}
 };
 
@@ -25,10 +28,6 @@ exports.getAllBooks = async (req, res) => {
 exports.getBookById = async (req, res) => {
 	try {
 		const book = await Book.findById(req.params.id)
-			.populate('author', 'name')
-			.populate('categories', 'name')
-			.populate('publication', 'name')
-			.populate('reviews', 'title');
 		if (!book) {
 			return res.status(404).json({ message: 'Book not found.' });
 		}
@@ -38,17 +37,14 @@ exports.getBookById = async (req, res) => {
 	}
 };
 
-
-// CREATE a new book
-
-
-
 // Controller to create a new book
 exports.createBook = async (req, res) => {
 	try {
-		const { title, author, description, price, discount, category, publication, stock } = req.fields;
-		const photo = req.files?.photo; // Assuming the field name for the photo is 'photo'.
-
+		console.log(`files ====>`+req.files)
+		const { title, author, description, price, category, publication, stock } = req.fields;
+		const { photo } = req.files;
+		// Assuming the field name for the photo is 'photo'.
+		console.log(photo)
 		// Validate required fields
 		if (!title?.trim() || !author?.trim() || !description?.trim() || !price || !stock) {
 			return res.status(400).json({ error: 'Title, author, description, price, and stock are required' });
@@ -58,24 +54,28 @@ exports.createBook = async (req, res) => {
 		if (photo && photo.size > 1000000) {
 			return res.status(400).json({ error: 'Image should be less than 1mb in size' });
 		}
+		console.log(`photo is `+photo)
+		// Upload the photo to Cloudinary
+		let photoUrl = "https://i.postimg.cc/jS4qxYt9/Bright-Dots.jpg";
+		if (photo) {
+			const result = await cloudinary.uploader.upload(photo.path, {
+				folder: 'bookNest/bookPhotos', // Specify the folder in Cloudinary to store book photos
+			});
+			photoUrl = result.secure_url;
+			console.log(result)
+		}
 
-		// Create a new book object
+		// Create a new book object with the Cloudinary photo URL
 		const newBook = new Book({
 			title,
 			author,
 			description,
 			price,
-			discount,
 			category,
 			publication,
 			stock,
+			photo: photoUrl,
 		});
-
-		// If photo is present, handle file upload
-		if (photo) {
-			newBook.photo.data = fs.readFileSync(photo.path);
-			newBook.photo.contentType = photo.type;
-		}
 
 		// Save the new book to the database
 		await newBook.save();
@@ -87,56 +87,58 @@ exports.createBook = async (req, res) => {
 	}
 };
 
-// UPDATE an existing book
-// Controller to update an existing book
+
+
 exports.updateBook = async (req, res) => {
 	try {
-		const { title, author, description, price, discount, category, publication, stock } = req.fields;
-		const photo = req.files?.photo; // Assuming the field name for the photo is 'photo'.
-		const bookId = req.params.id; // Assuming you are passing the book ID in the URL parameter.
+		// Extract book ID from the URL params
+		const bookId = req.params.bookId;
 
-		// Validate required fields
-		if (!title?.trim() || !author?.trim() || !description?.trim() || !price || !stock) {
-			return res.status(400).json({ error: 'Title, author, description, price, and stock are required' });
-		}
+		// Find the book by its ID
+		const bookToUpdate = await Book.findById(bookId);
 
-		// Find the existing book by ID
-		const existingBook = await Book.findById(bookId);
-
-		if (!existingBook) {
+		if (!bookToUpdate) {
 			return res.status(404).json({ error: 'Book not found' });
 		}
 
-		// Update the book properties
-		existingBook.title = title;
-		existingBook.author = author;
-		existingBook.description = description;
-		existingBook.price = price;
-		existingBook.discount = discount || 0;
-		existingBook.category = category || [];
-		existingBook.publication = publication;
-		existingBook.stock = stock;
+		// Update the book details with the new values from the form fields
+		const { title, author, description, price, category, publication, stock } = req.fields;
+		bookToUpdate.title = title || bookToUpdate.title;
+		bookToUpdate.author = author || bookToUpdate.author;
+		bookToUpdate.description = description || bookToUpdate.description;
+		bookToUpdate.price = price || bookToUpdate.price;
+		bookToUpdate.category = category || bookToUpdate.category;
+		bookToUpdate.publication = publication || bookToUpdate.publication;
+		bookToUpdate.stock = stock || bookToUpdate.stock;
 
-		// If photo is present, handle file upload
-		if (photo) {
+		// Handle photo update
+		if (req.files && req.files.photo) {
+			const photo = req.files.photo;
+
+			// Validate photo size
 			if (photo.size > 1000000) {
 				return res.status(400).json({ error: 'Image should be less than 1mb in size' });
 			}
-			existingBook.photo.data = fs.readFileSync(photo.path);
-			existingBook.photo.contentType = photo.type;
+
+			// Upload the new photo to Cloudinary
+			const result = await cloudinary.uploader.upload(photo.path, {
+				folder: 'bookNest/bookPhotos', // Specify the folder in Cloudinary to store book photos
+			});
+			bookToUpdate.photo = result.secure_url;
+			console.log('Cloudinary result:', result);
 		}
 
 		// Save the updated book to the database
-		await existingBook.save();
+		await bookToUpdate.save();
 
-		res.status(200).json(existingBook);
+		res.status(200).json(bookToUpdate);
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: 'An error occurred while updating the book' });
 	}
 };
 
-// DELETE a book
+// Controller to delete a book
 exports.deleteBook = async (req, res) => {
 	try {
 		const book = await Book.findByIdAndDelete(req.params.id);
@@ -149,7 +151,7 @@ exports.deleteBook = async (req, res) => {
 	}
 };
 
-
+// Controller to search books by category
 exports.searchBooksByCategory = async (req, res) => {
 	try {
 		const categoryName = req.params.categoryName;
@@ -178,6 +180,8 @@ exports.searchBooksByCategory = async (req, res) => {
 		res.status(500).json({ message: 'Error occurred while searching for books in the category.' });
 	}
 };
+
+// Controller to search books by publication
 exports.searchBooksByPublication = async (req, res) => {
 	try {
 		const publicationName = req.params.publicationName;
@@ -207,6 +211,7 @@ exports.searchBooksByPublication = async (req, res) => {
 	}
 };
 
+// Controller to search books by author
 exports.searchBooksByAuthor = async (req, res) => {
 	try {
 		const authorName = req.params.authorName;
@@ -235,6 +240,8 @@ exports.searchBooksByAuthor = async (req, res) => {
 		res.status(500).json({ message: 'Error occurred while searching for books by the author.' });
 	}
 };
+
+// Controller to search books by title
 exports.searchBooksByTitle = async (req, res) => {
 	try {
 		const bookTitle = req.params.bookTitle;
