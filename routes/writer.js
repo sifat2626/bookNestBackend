@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const { getAllWriters, getWriterById, createWriter, updateWriter, deleteWriter } = require('../controllers/writer');
+const { getAllWriters, getWriterById, createWriter, updateWriter, deleteWriter,writerList } = require('../controllers/writer');
 const { requireSignin, isAdmin } = require('../middlewares/auth');
 
 // GET all writers
 router.get('/writers', getAllWriters);
+router.get('/writers/:pageNo/:perPage/:searchKeyword', writerList);
 
 // GET a specific writer by ID
 router.get('/writers/:id', getWriterById);

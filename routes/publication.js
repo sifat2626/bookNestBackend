@@ -6,12 +6,14 @@ const {
 	getPublicationById,
 	createPublication,
 	updatePublication,
-	deletePublication
+	deletePublication,
+	publicationList
 } = require('../controllers/publication');
 const {requireSignin, isAdmin} = require("../middlewares/auth");
 
 // GET all publications
 router.get('/publications', getAllPublications);
+router.get('/publications/:pageNo/:perPage/:searchKeyword',publicationList);
 
 // GET a specific publication by ID
 router.get('/publications/:id', getPublicationById);
