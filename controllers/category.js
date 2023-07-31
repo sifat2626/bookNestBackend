@@ -94,10 +94,63 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+// modified for page and search system
+const categoryList = async (req,res)=>{
+  try {
+    let pageNo = Number(req.params.pageNo) || 1;
+    let perPage = Number(req.params.perPage) || 10;
+    let searchValue = req.params.searchKeyword;
+    let skipRow = (pageNo - 1) * perPage;
+
+    let data;
+    if (searchValue !== "0") {
+      let SearchRgx = { $regex: searchValue, $options: "i" };
+      // search in every possible field
+      let SearchQuery = {
+        $or: [
+          { name: SearchRgx }
+        ]
+      };
+
+      data = await Category.aggregate([
+        {
+          $facet: {
+            Total: [{ $match: SearchQuery }, { $count: "count" }],
+            Rows: [
+              { $match: SearchQuery },
+              { $skip: skipRow },
+              { $limit: perPage },
+            ],
+          },
+        },
+      ]);
+    } else {
+      data = await Category.aggregate([
+        {
+          $facet: {
+            Total: [{ $count: "count" }],
+            Rows: [
+              { $skip: skipRow },
+              { $limit: perPage },
+            ],
+          },
+        },
+      ]);
+    }
+    // console.log('data', data[0].Rows[0]);
+    
+    res.status(200).json({ status: "success", data });
+  } catch (error) {
+    res.status(200).json({ status: "fail", error: error });
+  }
+}
+
 module.exports = {
   getAllCategories,
   getCategoryById,
   createCategory,
   updateCategory,
   deleteCategory,
+  categoryList
+ 
 };

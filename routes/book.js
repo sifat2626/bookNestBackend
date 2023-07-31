@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const formidable =require("express-formidable");
 
-const { getAllBooks,bookList, getBookById, createBook, updateBook, deleteBook,searchBooksByTitle,searchBooksByCategory,searchBooksByPublication,searchBooksByAuthor,relatedBooks } = require('../controllers/book');
+const { getAllBooks,bookList, getBookById, createBook, updateBook, deleteBook,searchBooksByTitle,searchBooksByCategory,searchBooksByPublication,searchBooksByAuthor,relatedBooks} = require('../controllers/book');
 const { requireSignin, isAdmin } = require('../middlewares/auth');
 
 // GET all books
@@ -10,7 +10,7 @@ router.get('/allbooks/:pageNo/:perPage/:searchKeyword', getAllBooks);
 router.get('/booklist/:pageNo/:perPage/:searchKeyword', bookList);
 
 // GET a specific book by ID
-router.get('/books/:id', getBookById);
+router.get('/search/book/:id', getBookById);
 router.get('/similarbook/:bookId/:categoryId', relatedBooks);
 
 // CREATE a new book

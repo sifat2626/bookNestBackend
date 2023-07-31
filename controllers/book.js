@@ -31,12 +31,10 @@ exports.getAllBooks = async (req, res) => {
       .limit(perPage);
     res.json(books);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error occurred while retrieving books.",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error occurred while retrieving books.",
+      error: error.message,
+    });
   }
 };
 // modified for page and search system
@@ -126,26 +124,27 @@ exports.bookList = async (req, res) => {
         },
       ]);
     }
-
+    // console.log('data', data[0].Rows[0]);
+    
     res.status(200).json({ status: "success", data });
   } catch (error) {
     res.status(200).json({ status: "fail", error: error });
   }
 };
+
 // GET a specific book by ID
 exports.getBookById = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id)
-      .populate("author", "name")
-      .populate("categories", "name")
-      .populate("publication", "name")
-      .populate("reviews", "title");
-    if (!book) {
-      return res.status(404).json({ message: "Book not found." });
-    }
+      .populate("author")
+      .populate("category")
+      .populate("publication");
     res.json(book);
   } catch (error) {
-    res.status(500).json({ message: error });
+    res.status(500).json({
+      message: "Error occurred while retrieving book.",
+      error: error.message,
+    });
   }
 };
 

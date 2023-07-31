@@ -34,7 +34,6 @@ const bookSchema = new mongoose.Schema({
   publication: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Publication",
-    required: true,
   },
   reviews: [
     {
