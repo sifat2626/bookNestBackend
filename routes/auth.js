@@ -14,12 +14,14 @@ const {
   forgotPassword,
   resetPassword,
   userList,
-  adminList
+  adminList,
+  getUserById
 } = require("../controllers/auth.js");
 
 // get all user
 router.get("/allusers/:pageNo/:perPage/:searchKeyword", userList);
 router.get("/alladmin/:pageNo/:perPage/:searchKeyword", adminList);
+router.get("/user/:id", getUserById)
 router.post("/register", register);
 router.post("/login", login);
 router.post("/logout", requireSignin, logout);

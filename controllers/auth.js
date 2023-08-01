@@ -13,7 +13,7 @@ require("dotenv").config();
 exports.register = async (req, res) => {
   try {
     // 1. destructure name, email, password from req.body
-    const { name, email, password, photo } = req.body;
+    const { name, email, password, photo,address,role } = req.body;
     // 2. all fields require validation
     if (!name.trim()) {
       return res.json({ error: "Name is required" });
@@ -39,6 +39,8 @@ exports.register = async (req, res) => {
       name,
       email,
       photo,
+      address,
+      role: role || 0,
       password: hashedPassword,
     }).save();
     // 6. create signed jwt
@@ -267,7 +269,7 @@ exports.updateProfile = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    const user = User.findById(id);
+    const user = User.findById(req.params.id);
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json(error);

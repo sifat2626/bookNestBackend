@@ -26,7 +26,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
+    address: {
+      type: String,
+      default: "",
+    }
   },
   { versionKey: false, timestamps: true }
 );
