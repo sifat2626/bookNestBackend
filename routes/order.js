@@ -6,6 +6,8 @@ const {
 	getOrderById,
 	createOrder,
 	updateOrder,
+	getOrderByStatus,
+	// getOrdersWithStatus
 	// deleteOrder
 } = require('../controllers/order');
 
@@ -14,6 +16,8 @@ router.get('/orders', getAllOrders);
 
 // GET a specific order by ID
 router.get('/orders/:id', getOrderById);
+router.get('/ordersbystatus/:status/:page/:pageSize/:search', getOrderByStatus);
+// router.get('/ordersWithstatus/:status', getOrdersWithStatus);
 
 // CREATE a new order
 router.post('/orders', createOrder);
