@@ -268,11 +268,13 @@ exports.updateProfile = async (req, res) => {
 };
 
 exports.getUserById = async (req, res) => {
+  console.log('id', req.params.id);
+  
   try {
-    const user = User.findById(req.params.id);
+    const user = await User.findOne({ _id: req.params.id });
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json(error);
+    res.status(400).json({ error: error.message });
   }
 };
 
