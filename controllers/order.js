@@ -1,4 +1,5 @@
 // controllers/order.js
+const mongoose = require('mongoose');
 
 const Order = require("../models/order");
 
@@ -79,6 +80,7 @@ exports.updateOrder = async (req, res) => {
 };
 
 // get order by status
+// it will also search by order id
 exports.getOrderByStatus = async (req, res) => {
   let { page, pageSize, search, status } = req.params;
   page = Number(page) || 1;
@@ -90,14 +92,11 @@ exports.getOrderByStatus = async (req, res) => {
 		query["status"] = status;
 
       if (search && search !== "0") {
-				let searchRegex = new RegExp(search, "i");
+				
 				query.$or = [
-					{ "user.name": searchRegex },
+					{ '_id': search },
 				];
 			}
-			console.log('user.name')
-      console.log('Received params:', page, pageSize, search, status);
-    console.log('query', query);
 		
     let totalCount;
     if (search && search !== "0") {
@@ -123,10 +122,6 @@ exports.getOrderByStatus = async (req, res) => {
 
     res.status(200).json({ data: orders, totalCount });
 
-    // const orders = await Order.find({ status: req.params.status })
-    //   .populate("user", "name email")
-    //   .populate("items.book", "title price");
-    // res.json(orders);
   } catch (error) {
     res
       .status(500)
@@ -137,107 +132,191 @@ exports.getOrderByStatus = async (req, res) => {
   }
 };
 
-// get all order aggregate
-// exports.getOrdersWithStatus = async (req, res) => {
-//   const desiredStatus = req.params.status;
-//   try {
-//     // MongoDB aggregation pipeline
-//     const orders = await Order.aggregate([
-//       {
-//         $match: { status: desiredStatus },
-//       },
-//       {
-//         $lookup: {
-//           from: "users",
-//           localField: "user",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $unwind: "$user",
-//       },
-//       {
-//         $lookup: {
-//           from: "books",
-//           localField: "items.book",
-//           foreignField: "_id",
-//           as: "book",
-//         },
-//       },
-//       {
-//         $project: {
-//           status: 1,
-//           user: { name: 1 },
-//           items: {
-//             $map: {
-//               input: "$items",
-//               as: "item",
-//               in: {
-//                 book: { title: "$$item.book.title" },
-//                 quantity: "$$item.quantity",
-//               },
-//             },
-//           },
-//         },
-//       },
-//     ]);
-//     res.status(200).json(orders);
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({
-//         message: "Error occurred while retrieving orders.",
-//         error: error.message,
-//       });
-//   }
-// };
-// exports.getOrdersWithStatus=async(req,res)=> {
-// 		const desiredStatus=req.params.status;
-//   try {
-//     // MongoDB aggregation pipeline
-//     const orders = await Order.aggregate([
-//       {
-//         $match: { status: desiredStatus }
-//       },
-//       {
-//         $lookup: {
-//           from: 'users',
-//           localField: 'user',
-//           foreignField: '_id',
-//           as: 'user'
-//         }
-//       },
-// 			{
-// 				$unwind: '$user'
-// 			},
-//       {
-//         $lookup: {
-//           from: 'books',
-//           localField: 'items.book',
-//           foreignField: '_id',
-//           as: 'book'
-//         }
-//       },
-//       {
-//         $project: {
-//           status: 1,
-//           user: { name: 1 },
-//           items: {
-//             $map: {
-//               input: '$items',
-//               as: 'item',
-//               in: {
-//                 book: { title: '$$item.book.title' },
-//                 quantity: '$$item.quantity'
-//               }
-//             }
-//           }
-//         }
-//       }
-//     ]);
-// 		res.status(200).json(orders);
-// 			} catch (error) {
-// 		res.status(500).json({ message: 'Error occurred while retrieving orders.' ,"error":error.message});
-// 	}
-// }
+
+// aggregate way
+exports.getOrdersWithStatus = async (req, res) => {
+  let { page, pageSize, search } = req.params;
+  page = Number(page) || 1;
+  pageSize = Number(pageSize) || 3;
+  search = search || "0";
+  const desiredStatus = req.params.status;
+  let skipRows = (page - 1) * pageSize;
+  try {
+    let data;
+    let matchQuery = {
+      status: desiredStatus,
+    };
+
+    if (search !== "0") {
+      
+      if (mongoose.Types.ObjectId.isValid(search)) {
+        // Convert the search value to ObjectId
+        search = mongoose.Types.ObjectId(search);
+      } 
+    
+
+    matchQuery.$or = [
+      { _id: search }, // Search in _id
+    ];
+
+// console.log('matchQuery',matchQuery);
+
+    // MongoDB aggregation pipeline
+    data = await Order.aggregate([
+      {
+        $match: matchQuery,
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: '$user',
+      },
+      {
+        $lookup: {
+          from: 'books',
+          localField: 'items.book',
+          foreignField: '_id',
+          as: 'bookObjects',
+        },
+      },
+      {
+        $addFields: {
+          bookObjects: {
+            $cond: {
+              if: { $eq: [{ $size: '$bookObjects' }, 0] },
+              then: [],
+              else: {
+                $map: {
+                  input: '$bookObjects',
+                  as: 'bookObject',
+                  in: {
+                    $mergeObjects: [
+                      '$$bookObject',
+                      {
+                        quantity: {
+                          $reduce: {
+                            input: '$items',
+                            initialValue: 0,
+                            in: {
+                              $cond: [
+                                { $eq: ['$$this.book', '$$bookObject._id'] },
+                                { $add: ['$$value', '$$this.quantity'] },
+                                '$$value',
+                              ],
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          'user.name': 1,
+          'user.email': 1,
+          orderDetails: 1,
+          _id: 1,
+          bookObjects: 1,
+        },
+      },
+      {
+        $skip: skipRows,
+      },
+      {
+        $limit: pageSize,
+      },
+    ]);}else{
+      data = await Order.aggregate([
+        {
+          $match: { status: desiredStatus },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $unwind: '$user',
+        },
+        {
+          $lookup: {
+            from: 'books',
+            localField: 'items.book',
+            foreignField: '_id',
+            as: 'bookObjects',
+          },
+        },
+        {
+          $addFields: {
+            bookObjects: {
+              $cond: {
+                if: { $eq: [{ $size: '$bookObjects' }, 0] },
+                then: [],
+                else: {
+                  $map: {
+                    input: '$bookObjects',
+                    as: 'bookObject',
+                    in: {
+                      $mergeObjects: [
+                        '$$bookObject',
+                        {
+                          quantity: {
+                            $reduce: {
+                              input: '$items',
+                              initialValue: 0,
+                              in: {
+                                $cond: [
+                                  { $eq: ['$$this.book', '$$bookObject._id'] },
+                                  { $add: ['$$value', '$$this.quantity'] },
+                                  '$$value',
+                                ],
+                              },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            'user.name': 1,
+            'user.email': 1,
+            orderDetails: 1,
+            _id: 1,
+            bookObjects: 1,
+          },
+        },
+        {
+          $skip: skipRows,
+        },
+        {
+          $limit: pageSize,
+        },
+      ]);
+    }
+
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: 'Error occurred while retrieving orders.', "error": error.message });
+  }
+}
+
