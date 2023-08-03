@@ -59,7 +59,7 @@ exports.register = async (req, res) => {
       token,
     });
   } catch (err) {
-    console.log(err);
+    res.status(500).json({ error:err.message });
   }
 };
 
@@ -110,6 +110,14 @@ exports.logout = async (req, res) => {
   }
 };
 
+exports.deleteUser=async(req,res)=>{
+  try{
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).json({success:"Deleted a User"});
+  }catch(err){
+    return res.status(500).json({error:err.message});
+  }
+}
 exports.confirmPassword = async (req, res) => {
   const { email, password } = req.body;
 
@@ -385,3 +393,19 @@ exports.adminList = async (req, res) => {
     res.status(200).json({ status: "fail", error: error.message });
   }
 };
+
+// change admin status(0,1)
+exports.changeAdminStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (user.role === 0) {
+      user.role = 1;
+    } else {
+      user.role = 0;
+    }
+    await user.save();
+    res.status(200).json({ status: "success", user });
+  } catch (error) {
+    res.status(400).json({ status: "fail", error: error.message });
+  }
+}

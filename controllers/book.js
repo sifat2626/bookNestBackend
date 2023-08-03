@@ -128,7 +128,7 @@ exports.bookList = async (req, res) => {
     
     res.status(200).json({ status: "success", data });
   } catch (error) {
-    res.status(200).json({ status: "fail", error: error });
+    res.status(500).json({ status: "fail", error: error });
   }
 };
 
@@ -291,7 +291,7 @@ exports.deleteBook = async (req, res) => {
     if (!book) {
       return res.status(404).json({ message: "Book not found." });
     }
-    res.json({ message: "Book deleted successfully." });
+    res.status(200).json({ message: "Book deleted successfully." });
   } catch (error) {
     res
       .status(400)

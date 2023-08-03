@@ -15,7 +15,9 @@ const {
   resetPassword,
   userList,
   adminList,
-  getUserById
+  getUserById,
+  deleteUser,
+  changeAdminStatus
 } = require("../controllers/auth.js");
 
 // get all user
@@ -34,13 +36,14 @@ router.get("/admin-check", requireSignin, isAdmin, (req, res) => {
 
 // router.put("/profile", requireSignin, updateProfile);
 router.put("/profile/:id", requireSignin, updateProfile);
-
+router.delete("/user/:id", requireSignin, deleteUser);
 // testing
 router.get("/secret", requireSignin, isAdmin, secret);
 
 // forgot reset password
 router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword/:resetToken", resetPassword);
+router.put("/adminstatus/:id", requireSignin, isAdmin, changeAdminStatus);
 // orders
 // router.get("/orders", requireSignin, getOrders);
 // router.get("/all-orders", requireSignin, isAdmin, allOrders);
