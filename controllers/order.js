@@ -346,13 +346,13 @@ exports.ordersCountForLastSevenDays = async (req, res) => {
         day: {
           $switch: {
             branches: [
-              { case: { $eq: ["$_id", 0] }, then: "Sunday" },
-              { case: { $eq: ["$_id", 1] }, then: "Monday" },
-              { case: { $eq: ["$_id", 2] }, then: "Tuesday" },
-              { case: { $eq: ["$_id", 3] }, then: "Wednesday" },
-              { case: { $eq: ["$_id", 4] }, then: "Thursday" },
-              { case: { $eq: ["$_id", 5] }, then: "Friday" },
-              { case: { $eq: ["$_id", 6] }, then: "Saturday" },
+              { case: { $eq: ["$_id", 1] }, then: "Sunday" },
+              { case: { $eq: ["$_id", 2] }, then: "Monday" },
+              { case: { $eq: ["$_id", 3] }, then: "Tuesday" },
+              { case: { $eq: ["$_id", 4] }, then: "Wednesday" },
+              { case: { $eq: ["$_id", 5] }, then: "Thursday" },
+              { case: { $eq: ["$_id", 6] }, then: "Friday" },
+              { case: { $eq: ["$_id", 7] }, then: "Saturday" },
             ],
             default: "Unknown",
           },
@@ -415,7 +415,7 @@ exports.totalAmountReceivedForToday = async (req, res) => {
       $match: {
         status: "Delivered",
         $or: [
-          { createdAt: { $gte: startOfDay, $lte:endOfDay } },
+          { createdAt: { $gte: startOfDay, $lte: endOfDay } },
           { updatedAt: { $gte: startOfDay, $lte: endOfDay } },
         ],
       },
@@ -485,7 +485,6 @@ exports.totalAmountReceivedForToday = async (req, res) => {
   ]);
   res.json(data);
 };
-
 
 // exports.amountReceivedPerDay = async (req, res) => {
 //   let daysAgo = 0; // Default to today
@@ -670,11 +669,7 @@ exports.amountReceivedPerDay = async (req, res) => {
         _id: 0,
         day: "$_id",
         totalAmount: {
-          $cond: [
-            { $eq: ["$count", 0] },
-            0,
-            "$totalAmount"
-          ],
+          $cond: [{ $eq: ["$count", 0] }, 0, "$totalAmount"],
         },
       },
     },
@@ -684,10 +679,10 @@ exports.amountReceivedPerDay = async (req, res) => {
         data: {
           $push: {
             day: "$day",
-            totalAmount: "$totalAmount"
-          }
-        }
-      }
+            totalAmount: "$totalAmount",
+          },
+        },
+      },
     },
     {
       $project: {
@@ -696,12 +691,15 @@ exports.amountReceivedPerDay = async (req, res) => {
           $cond: [
             { $eq: [{ $size: "$data" }, 0] },
             [{ day: "", totalAmount: 0 }],
-            "$data"
-          ]
-        }
-      }
-    }
+            "$data",
+          ],
+        },
+      },
+    },
   ]).exec(); // Call exec() to ensure the aggregation is executed
-  res.json(data && data[0] && data[0].data ? data[0].data : [{ day: "no data available with this day", totalAmount: 0}]);
+  res.json(
+    data && data[0] && data[0].data
+      ? data[0].data
+      : [{ day: "no data available with this day", totalAmount: 0 }]
+  );
 };
-

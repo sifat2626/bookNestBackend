@@ -125,7 +125,7 @@ exports.bookList = async (req, res) => {
       ]);
     }
     // console.log('data', data[0].Rows[0]);
-    
+
     res.status(200).json({ status: "success", data });
   } catch (error) {
     res.status(500).json({ status: "fail", error: error });
@@ -207,7 +207,7 @@ exports.createBook = async (req, res) => {
 
     res.status(201).json(newBook);
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     res
       .status(500)
       .json({ error: "An error occurred while creating the book" });
@@ -305,6 +305,7 @@ exports.searchBooksByCategory = async (req, res) => {
 
     // Find the category by name
     const category = await Category.findOne({
+      // name: categoryName,
       name: { $regex: new RegExp(categoryName, "i") },
     });
 
@@ -316,8 +317,8 @@ exports.searchBooksByCategory = async (req, res) => {
     const books = await Book.find({ category: category._id })
       .populate("author", "name") // Populate the author field with the name only
       .populate("category", "name") // Populate the category field with the name only
-      .populate("publication", "name") // Populate the publication field with the name only
-      .select("title author category publication"); // Select specific fields to return
+      .populate("publication", "name"); // Populate the publication field with the name only
+    // .select("title author category publication "); // Select specific fields to return
 
     if (books.length === 0) {
       return res
