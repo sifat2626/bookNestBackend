@@ -1,30 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const formidable= require('express-formidable');
 
-
-const {
-	getAllCategories,
-	getCategoryById,
-	createCategory,
-	updateCategory,
-	deleteCategory
-} = require('../controllers/category');
+const category = require('../controllers/category');
+// const {categoryList} = require('../controllers/category');
 const { requireSignin, isAdmin } = require('../middlewares/auth');
+// const Category = require('../models/category');
 
 // GET all categories
-router.get('/categories', getAllCategories);
+router.get('/categories', category.getAllCategories);
+router.get('/categories/:pageNo/:perPage/:searchKeyword',category.categoryList);
 
 // GET a specific category by ID
-router.get('/categories/:id', getCategoryById);
+router.get('/categories/:id', category.getCategoryById);
 
 // CREATE a new category
-router.post('/categories', requireSignin, isAdmin,formidable(), createCategory);
+router.post('/categories', requireSignin, isAdmin, category.createCategory);
 
 // UPDATE an existing category
-router.put('/categories/:id', requireSignin, isAdmin,formidable(), updateCategory);
+router.put('/categories/:id', requireSignin, isAdmin, category.updateCategory);
 
 // DELETE a category
-router.delete('/categories/:id', requireSignin, isAdmin, deleteCategory);
+router.delete('/categories/:id', requireSignin, isAdmin, category.deleteCategory);
 
 module.exports = router;

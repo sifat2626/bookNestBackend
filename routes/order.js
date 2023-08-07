@@ -6,7 +6,13 @@ const {
 	getOrderById,
 	createOrder,
 	updateOrder,
-	deleteOrder
+	getOrderByStatus,
+	getOrdersWithStatus,
+	ordersCountForLastSevenDays,
+	orderStateForCureentDay,
+	totalAmountReceivedForToday,
+	amountReceivedPerDay
+	// deleteOrder
 } = require('../controllers/order');
 
 // GET all orders
@@ -14,6 +20,8 @@ router.get('/orders', getAllOrders);
 
 // GET a specific order by ID
 router.get('/orders/:id', getOrderById);
+router.get('/ordersbystatus/:status/:page/:pageSize/:search', getOrderByStatus);
+router.get('/ordersWithstatus/:status/:page/:pageSize/:search', getOrdersWithStatus);
 
 // CREATE a new order
 router.post('/orders', createOrder);
@@ -22,6 +30,12 @@ router.post('/orders', createOrder);
 router.put('/orders/:id', updateOrder);
 
 // DELETE an order
-router.delete('/orders/:id', deleteOrder);
+// router.delete('/orders/:id', deleteOrder);
+
+//  chartjs data
+router.get('/lastsevendaysordercount', ordersCountForLastSevenDays);
+router.get('/orderstateforcurrentday', orderStateForCureentDay)
+router.get('/amountreceivedfortoday', totalAmountReceivedForToday)
+router.get('/amountReceivedPerDay/:value', amountReceivedPerDay)
 
 module.exports = router;
