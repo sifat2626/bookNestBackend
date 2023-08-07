@@ -1,27 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const formidable= require('express-formidable');
 
 const {
 	getAllPublications,
 	getPublicationById,
 	createPublication,
 	updatePublication,
-	deletePublication
+	deletePublication,
+	publicationList
 } = require('../controllers/publication');
 const {requireSignin, isAdmin} = require("../middlewares/auth");
 
 // GET all publications
 router.get('/publications', getAllPublications);
+router.get('/publications/:pageNo/:perPage/:searchKeyword',publicationList);
 
 // GET a specific publication by ID
 router.get('/publications/:id', getPublicationById);
 
 // CREATE a new publication
-router.post('/publications',requireSignin,isAdmin,formidable(), createPublication);
+router.post('/publications',requireSignin,isAdmin, createPublication);
 
 // UPDATE an existing publication
-router.put('/publications/:id',requireSignin,isAdmin,formidable(), updatePublication);
+router.put('/publications/:id', updatePublication);
 
 // DELETE a publication
 router.delete('/publications/:id', deletePublication);
