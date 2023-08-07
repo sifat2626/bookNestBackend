@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
     photo:{
       type: String,
     },
+    cphoto:{
+      type:String,
+      default:"https://i.postimg.cc/SxN3MBcH/not-found.png"
+    },
     role: {
       type: Number,
       default: 0,

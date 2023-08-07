@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const bookSchema = new mongoose.Schema({
   title: {
@@ -8,7 +8,7 @@ const bookSchema = new mongoose.Schema({
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Writer",
+    ref: 'Writer',
     required: true,
   },
   description: {
@@ -16,9 +16,12 @@ const bookSchema = new mongoose.Schema({
     required: true,
   },
   photo: {
-    type: String,
+    type: String, // Store the Cloudinary URL as a string
   },
-
+  cphoto: {
+    type: String,
+    default:"https://i.postimg.cc/jS4qxYt9/Bright-Dots.jpg"
+  },
   price: {
     type: Number,
     required: true,
@@ -29,16 +32,17 @@ const bookSchema = new mongoose.Schema({
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
+    ref: 'Category',
   },
   publication: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Publication",
+    ref: 'Publication',
+    required: true,
   },
   reviews: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Review",
+      ref: 'Review',
     },
   ],
   stock: {
@@ -47,6 +51,6 @@ const bookSchema = new mongoose.Schema({
   },
 });
 
-const Book = mongoose.model("Book", bookSchema);
+const Book = mongoose.model('Book', bookSchema);
 
 module.exports = Book;
