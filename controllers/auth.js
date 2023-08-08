@@ -11,9 +11,11 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 exports.register = async (req, res) => {
+  console.log('res.body',req.body);
+  
   try {
     // 1. destructure name, email, password from req.body
-    const { name, email, password, photo,address,role } = req.body;
+    const { name, email, password, photo,address,role,phone } = req.body;
     // 2. all fields require validation
     if (!name.trim()) {
       return res.json({ error: "Name is required" });
@@ -24,6 +26,13 @@ exports.register = async (req, res) => {
     if (!password || password.length < 6) {
       return res.json({ error: "Password must be at least 6 characters long" });
     }
+    if(!phone){
+      return res.json({error: "Phone number is required"})
+    }
+    if(!address){
+      return res.json({error: "Address is required"})
+    }
+
     // 3. check if email is taken
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -39,7 +48,8 @@ exports.register = async (req, res) => {
       name,
       email,
       photo,
-      address,
+      address : address || "Not given yet",
+      phone,
       role: role || 0,
       password: hashedPassword,
     }).save();
@@ -55,6 +65,7 @@ exports.register = async (req, res) => {
         photo: user.photo,
         role: user.role,
         address: user.address,
+        phone: user.phone,
       },
       token,
     });
