@@ -449,3 +449,76 @@ exports.relatedBooks = async (req, res) => {
     console.log(err);
   }
 };
+// exports.filterBooks = async (req, res) => {
+//   try {
+//     const { categories, minPrice, maxPrice, publications } = req.query;
+//
+//     // Build your query based on the provided criteria
+//     let query = {};
+//
+//     if (categories && Array.isArray(categories)) {
+//       query['category'] = { $in: categories };
+//     }
+//
+//     if (minPrice && maxPrice) {
+//       query['price'] = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
+//     }
+//
+//     if (publications && Array.isArray(publications)) {
+//       query['publication'] = { $in: publications };
+//     }
+//
+//     // Perform the search with the constructed query
+//     const filteredBooks = await Book.find(query)
+//       .populate("author", "name")
+//       .populate("category", "name")
+//       .populate("publication", "name");
+//
+//     res.json(filteredBooks);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       message: "Error occurred while filtering books.",
+//       error: error.message,
+//     });
+//   }
+// };
+exports.filterBooks = async (req, res) => {
+  try {
+    const { categories, minPrice, maxPrice, publications, authors } = req.query;
+
+    // Build your query based on the provided criteria
+    let query = {};
+
+    if (categories && Array.isArray(categories)) {
+      query['category'] = { $in: categories };
+    }
+
+    if (minPrice && maxPrice) {
+      query['price'] = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
+    }
+
+    if (publications && Array.isArray(publications)) {
+      query['publication'] = { $in: publications };
+    }
+
+    if (authors && Array.isArray(authors)) {
+      query['author'] = { $in: authors };
+    }
+
+    // Perform the search with the constructed query
+    const filteredBooks = await Book.find(query)
+      .populate("author", "name")
+      .populate("category", "name")
+      .populate("publication", "name");
+
+    res.json(filteredBooks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error occurred while filtering books.",
+      error: error.message,
+    });
+  }
+};
+
