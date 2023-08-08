@@ -117,6 +117,7 @@ const writerList = async (req,res)=>{
   }
 }
 
+
 module.exports = {
 	getAllWriters,
 	getWriterById,
