@@ -10,7 +10,6 @@ const {
   login,
   secret,
   updateProfile,
-  logout,
   forgotPassword,
   resetPassword,
   userList,
@@ -21,12 +20,12 @@ const {
 } = require("../controllers/auth.js");
 
 // get all user
-router.get("/allusers/:pageNo/:perPage/:searchKeyword", userList);
-router.get("/alladmin/:pageNo/:perPage/:searchKeyword", adminList);
-router.get("/user/:id", getUserById)
+router.get("/allusers/:pageNo/:perPage/:searchKeyword",requireSignin, isAdmin, userList);
+router.get("/alladmin/:pageNo/:perPage/:searchKeyword",requireSignin, isAdmin, adminList);
+router.get("/user/:id",requireSignin, getUserById)
 router.post("/register", register);
 router.post("/login", login);
-router.post("/logout", requireSignin, logout);
+// router.post("/logout", requireSignin, logout);
 router.get("/auth-check", requireSignin, (req, res) => {
   res.json({ login: true });
 });
