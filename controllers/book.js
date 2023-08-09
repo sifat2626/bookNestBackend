@@ -3,7 +3,7 @@ const fs = require("fs");
 const Category = require("../models/category");
 const Publication = require("../models/publication");
 const Writer = require("../models/writer");
-
+const mongoose = require('mongoose')
 // NOTE: similar book controller is missing
 // GET all books
 exports.getAllBooks = async (req, res) => {
@@ -449,23 +449,44 @@ exports.relatedBooks = async (req, res) => {
     console.log(err);
   }
 };
+
+
 // exports.filterBooks = async (req, res) => {
 //   try {
-//     const { categories, minPrice, maxPrice, publications } = req.query;
+//     const { categories, minPrice, maxPrice, publications, authors } = req.query;
 //
 //     // Build your query based on the provided criteria
 //     let query = {};
 //
-//     if (categories && Array.isArray(categories)) {
-//       query['category'] = { $in: categories };
+//     if (categories) {
+//       // Find category by name
+//
+//
+//
+//         query['category'] = categories._id;
+//
 //     }
 //
 //     if (minPrice && maxPrice) {
 //       query['price'] = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
 //     }
 //
-//     if (publications && Array.isArray(publications)) {
-//       query['publication'] = { $in: publications };
+//     if (publications) {
+//       // Find publication by name
+//
+//
+//
+//         query['publication'] = publications._id;
+//
+//     }
+//
+//     if (authors) {
+//       // Find publication by name
+//
+//
+//
+//         query['author'] = authors._id;
+//
 //     }
 //
 //     // Perform the search with the constructed query
@@ -483,6 +504,11 @@ exports.relatedBooks = async (req, res) => {
 //     });
 //   }
 // };
+
+
+
+
+
 exports.filterBooks = async (req, res) => {
   try {
     const { categories, minPrice, maxPrice, publications, authors } = req.query;
@@ -490,20 +516,35 @@ exports.filterBooks = async (req, res) => {
     // Build your query based on the provided criteria
     let query = {};
 
-    if (categories && Array.isArray(categories)) {
-      query['category'] = { $in: categories };
+    if (categories) {
+      // Find category by name
+      const category = await Category.findOne({ name: categories });
+
+      if (category) {
+        query['category'] = category._id;
+      }
     }
 
     if (minPrice && maxPrice) {
       query['price'] = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
     }
 
-    if (publications && Array.isArray(publications)) {
-      query['publication'] = { $in: publications };
+    if (publications) {
+      // Find publication by name
+      const publication = await Publication.findOne({ name: publications });
+
+      if (publication) {
+        query['publication'] = publication._id;
+      }
     }
 
-    if (authors && Array.isArray(authors)) {
-      query['author'] = { $in: authors };
+    if (authors) {
+      // Find publication by name
+      const author = await Writer.findOne({ name: authors });
+
+      if (author) {
+        query['author'] = author._id;
+      }
     }
 
     // Perform the search with the constructed query
@@ -521,4 +562,7 @@ exports.filterBooks = async (req, res) => {
     });
   }
 };
+
+
+
 
