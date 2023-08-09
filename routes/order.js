@@ -15,6 +15,7 @@ const {
 	// deleteOrder
 } = require('../controllers/order');
 
+const { requireSignin, isAdmin } = require('../middlewares/auth');
 // GET all orders
 router.get('/orders', getAllOrders);
 
@@ -27,7 +28,7 @@ router.get('/ordersWithstatus/:status/:page/:pageSize/:search', getOrdersWithSta
 router.post('/orders', createOrder);
 
 // UPDATE an existing order
-router.put('/orders/:id', updateOrder);
+router.put('/orders/:id',requireSignin,isAdmin, updateOrder);
 
 // DELETE an order
 // router.delete('/orders/:id', deleteOrder);

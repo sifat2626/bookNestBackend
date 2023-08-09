@@ -10,23 +10,24 @@ const {
   login,
   secret,
   updateProfile,
-  logout,
   forgotPassword,
   resetPassword,
   userList,
   adminList,
   getUserById,
   deleteUser,
-  changeAdminStatus
+  changeAdminStatus,
+  updateInterest,
+  getInterestedBooks
 } = require("../controllers/auth.js");
 
 // get all user
-router.get("/allusers/:pageNo/:perPage/:searchKeyword", userList);
-router.get("/alladmin/:pageNo/:perPage/:searchKeyword", adminList);
-router.get("/user/:id", getUserById)
+router.get("/allusers/:pageNo/:perPage/:searchKeyword",requireSignin, isAdmin, userList);
+router.get("/alladmin/:pageNo/:perPage/:searchKeyword",requireSignin, isAdmin, adminList);
+router.get("/user/:id",requireSignin, getUserById)
 router.post("/register", register);
 router.post("/login", login);
-router.post("/logout", requireSignin, logout);
+// router.post("/logout", requireSignin, logout);
 router.get("/auth-check", requireSignin, (req, res) => {
   res.json({ login: true });
 });
@@ -47,5 +48,6 @@ router.put("/adminstatus/:id", requireSignin, isAdmin, changeAdminStatus);
 // orders
 // router.get("/orders", requireSignin, getOrders);
 // router.get("/all-orders", requireSignin, isAdmin, allOrders);
-
+router.post("/interests", requireSignin, updateInterest);
+router.get("/interestedbooks", requireSignin, getInterestedBooks);
 module.exports = router;

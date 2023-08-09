@@ -8,7 +8,7 @@ const mongoose = require('mongoose')
 // GET all books
 exports.getAllBooks = async (req, res) => {
   let pageNo = Number(req.params.pageNo) || 1;
-  let perPage = Number(req.params.perPage) || 10;
+  let perPage = Number(req.params.perPage) || 15;
   let searchValue = req.params.searchKeyword;
   let skipRow = (pageNo - 1) * perPage;
   let SearchRgx = { $regex: searchValue, $options: "i" };
@@ -41,7 +41,7 @@ exports.getAllBooks = async (req, res) => {
 exports.bookList = async (req, res) => {
   try {
     let pageNo = Number(req.params.pageNo) || 1;
-    let perPage = Number(req.params.perPage) || 10;
+    let perPage = Number(req.params.perPage) || 15;
     let searchValue = req.params.searchKeyword;
     let skipRow = (pageNo - 1) * perPage;
 
@@ -91,9 +91,11 @@ exports.bookList = async (req, res) => {
 
               { $skip: skipRow },
               { $limit: perPage },
+             
             ],
           },
         },
+        { $sort: { createdAt: 1 } }
       ]);
     } else {
       data = await Book.aggregate([
@@ -122,6 +124,7 @@ exports.bookList = async (req, res) => {
             ],
           },
         },
+        { $sort: { createdAt: -1 } }
       ]);
     }
     // console.log('data', data[0].Rows[0]);
@@ -442,7 +445,9 @@ exports.relatedBooks = async (req, res) => {
       .populate("category")
       .populate("author")
       .populate("publication")
-      .limit(3);
+      .limit(4)
+      .sort({ createdAt: -1 })
+      ;
 
     res.json(related);
   } catch (err) {

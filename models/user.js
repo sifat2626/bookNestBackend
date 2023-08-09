@@ -26,10 +26,14 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    phone: {
+      type: String,
+    },
     address: {
       type: String,
-      default: "",
-    }
+      default: "Not Given Yet",
+    },
+    interests: [mongoose.Schema.Types.ObjectId],
   },
   { versionKey: false, timestamps: true }
 );
