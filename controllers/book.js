@@ -454,3 +454,56 @@ exports.relatedBooks = async (req, res) => {
     console.log(err);
   }
 };
+exports.filterBooks = async (req, res) => {
+  try {
+    const { categories, minPrice, maxPrice, publications, authors } = req.query;
+
+    // Build your query based on the provided criteria
+    let query = {};
+
+    if (categories) {
+      // Find category by name
+      const category = await Category.findOne({ name: categories });
+
+      if (category) {
+        query['category'] = category._id;
+      }
+    }
+
+    if (minPrice && maxPrice) {
+      query['price'] = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
+    }
+
+    if (publications) {
+      // Find publication by name
+      const publication = await Publication.findOne({ name: publications });
+
+      if (publication) {
+        query['publication'] = publication._id;
+      }
+    }
+
+    if (authors) {
+      // Find publication by name
+      const author = await Writer.findOne({ name: authors });
+
+      if (author) {
+        query['author'] = author._id;
+      }
+    }
+
+    // Perform the search with the constructed query
+    const filteredBooks = await Book.find(query)
+      .populate("author", "name")
+      .populate("category", "name")
+      .populate("publication", "name");
+
+    res.json(filteredBooks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error occurred while filtering books.",
+      error: error.message,
+    });
+  }
+};
