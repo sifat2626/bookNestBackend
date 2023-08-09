@@ -1,4 +1,5 @@
 const User = require("../models/user.js");
+const Book = require("../models/book.js");
 const Token = require("../models/token.js");
 const sendEmail = require("../helpers/sendEmail.js");
 
@@ -419,4 +420,58 @@ exports.changeAdminStatus = async (req, res) => {
   } catch (error) {
     res.status(400).json({ status: "fail", error: error.message });
   }
+}
+
+exports.updateInterest=async (req, res) => {
+  try {
+    const { userEmail, interestId } = req.body;
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+   
+    if (!user.interests.includes(interestId)) {
+      user.interests.push(interestId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "Interests updated successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating interests." });
+  }
+};
+
+exports.getInterestedBooks = async (req, res) => {
+  try {
+   
+
+    // Fetch user's interested categories
+    const user = await User.findById(req.user._id);
+    console.log('user', user);
+    
+    const interestCategories = user ? user.interests : [];
+
+    // Find books with matching categories
+    const interestedBooks = await Book.find({ category: { $in: interestCategories } });
+    // Shuffle the array of interested books
+    const shuffledBooks = shuffleArray(interestedBooks);
+
+    // Send a random selection of up to 4 books
+    const randomBooks = shuffledBooks.slice(0, 4);
+    res.status(200).json(randomBooks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching interested books." });
+  }
+};
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  
+  const uniqueShuffled = [...new Set(shuffled)]; // Remove duplicates
+  return uniqueShuffled;
 }

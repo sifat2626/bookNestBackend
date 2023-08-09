@@ -16,7 +16,9 @@ const {
   adminList,
   getUserById,
   deleteUser,
-  changeAdminStatus
+  changeAdminStatus,
+  updateInterest,
+  getInterestedBooks
 } = require("../controllers/auth.js");
 
 // get all user
@@ -46,5 +48,6 @@ router.put("/adminstatus/:id", requireSignin, isAdmin, changeAdminStatus);
 // orders
 // router.get("/orders", requireSignin, getOrders);
 // router.get("/all-orders", requireSignin, isAdmin, allOrders);
-
+router.post("/interests", requireSignin, updateInterest);
+router.get("/interestedbooks", requireSignin, getInterestedBooks);
 module.exports = router;

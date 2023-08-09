@@ -32,7 +32,8 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
       default: "Not Given Yet",
-    }
+    },
+    interests: [mongoose.Schema.Types.ObjectId],
   },
   { versionKey: false, timestamps: true }
 );
