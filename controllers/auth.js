@@ -1,4 +1,5 @@
 const User = require("../models/user.js");
+const Book = require("../models/book.js");
 const Token = require("../models/token.js");
 const sendEmail = require("../helpers/sendEmail.js");
 
@@ -11,9 +12,11 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 exports.register = async (req, res) => {
+  console.log('res.body',req.body);
+  
   try {
     // 1. destructure name, email, password from req.body
-    const { name, email, password, photo,address,role } = req.body;
+    const { name, email, password, photo,address,role,phone } = req.body;
     // 2. all fields require validation
     if (!name.trim()) {
       return res.json({ error: "Name is required" });
@@ -24,6 +27,13 @@ exports.register = async (req, res) => {
     if (!password || password.length < 6) {
       return res.json({ error: "Password must be at least 6 characters long" });
     }
+    if(!phone){
+      return res.json({error: "Phone number is required"})
+    }
+    if(!address){
+      return res.json({error: "Address is required"})
+    }
+
     // 3. check if email is taken
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -39,7 +49,8 @@ exports.register = async (req, res) => {
       name,
       email,
       photo,
-      address,
+      address : address || "Not given yet",
+      phone,
       role: role || 0,
       password: hashedPassword,
     }).save();
@@ -55,6 +66,7 @@ exports.register = async (req, res) => {
         photo: user.photo,
         role: user.role,
         address: user.address,
+        phone: user.phone,
       },
       token,
     });
@@ -408,4 +420,58 @@ exports.changeAdminStatus = async (req, res) => {
   } catch (error) {
     res.status(400).json({ status: "fail", error: error.message });
   }
+}
+
+exports.updateInterest=async (req, res) => {
+  try {
+    const { userEmail, interestId } = req.body;
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+   
+    if (!user.interests.includes(interestId)) {
+      user.interests.push(interestId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "Interests updated successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating interests." });
+  }
+};
+
+exports.getInterestedBooks = async (req, res) => {
+  try {
+   
+
+    // Fetch user's interested categories
+    const user = await User.findById(req.user._id);
+    console.log('user', user);
+    
+    const interestCategories = user ? user.interests : [];
+
+    // Find books with matching categories
+    const interestedBooks = await Book.find({ category: { $in: interestCategories } });
+    // Shuffle the array of interested books
+    const shuffledBooks = shuffleArray(interestedBooks);
+
+    // Send a random selection of up to 4 books
+    const randomBooks = shuffledBooks.slice(0, 4);
+    res.status(200).json(randomBooks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching interested books." });
+  }
+};
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  
+  const uniqueShuffled = [...new Set(shuffled)]; // Remove duplicates
+  return uniqueShuffled;
 }

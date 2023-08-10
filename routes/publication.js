@@ -22,9 +22,9 @@ router.get('/publications/:id', getPublicationById);
 router.post('/publications',requireSignin,isAdmin, createPublication);
 
 // UPDATE an existing publication
-router.put('/publications/:id', updatePublication);
+router.put('/publications/:id',requireSignin,isAdmin, updatePublication);
 
 // DELETE a publication
-router.delete('/publications/:id', deletePublication);
+router.delete('/publications/:id',requireSignin,isAdmin, deletePublication);
 
 module.exports = router;
