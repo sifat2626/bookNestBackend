@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const formidable =require("express-formidable");
 
-const { getAllBooks,bookList, getBookById, createBook, updateBook, deleteBook,searchBooksByTitle,searchBooksByCategory,searchBooksByPublication,searchBooksByAuthor,relatedBooks} = require('../controllers/book');
+
+const { filterBooks,getAllBooks,bookList, getBookById, createBook, updateBook, deleteBook,searchBooksByTitle,searchBooksByCategory,searchBooksByPublication,searchBooksByAuthor,relatedBooks} = require('../controllers/book');
 const { requireSignin, isAdmin } = require('../middlewares/auth');
 
 // GET all books
@@ -22,7 +22,7 @@ router.get('/search/publication/:publicationName',searchBooksByPublication);
 
 router.get('/search/author/:authorName',searchBooksByAuthor);
 
-router.get('/search/book/:bookTitle',searchBooksByTitle);
+router.get('/search/books/:bookTitle',searchBooksByTitle);
 
 
 
@@ -32,4 +32,6 @@ router.put('/books/:id', requireSignin, isAdmin, updateBook);
 // DELETE a book
 router.delete('/books/:id', requireSignin, isAdmin, deleteBook);
 
+// filter book
+router.get('/filter',filterBooks);
 module.exports = router;

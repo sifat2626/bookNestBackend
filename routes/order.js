@@ -21,7 +21,7 @@ router.get('/orders', getAllOrders);
 
 // GET a specific order by ID
 router.get('/orders/:id', getOrderById);
-router.get('/ordersbystatus/:status/:page/:pageSize/:search', getOrderByStatus);
+router.get('/getordersbystatus/:status/:page/:pageSize/:search', getOrderByStatus);
 router.get('/ordersWithstatus/:status/:page/:pageSize/:search', getOrdersWithStatus);
 
 // CREATE a new order

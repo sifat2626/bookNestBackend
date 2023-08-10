@@ -67,15 +67,15 @@ exports.updateOrder = async (req, res) => {
       { new: true }
     )
       .populate("user", "name email")
-      .populate("book", "title price");
+      .populate("items.book", "title price");
     if (!order) {
       return res.status(404).json({ message: "Order not found." });
     }
-    res.json(order);
+    res.status(200).json(order);
   } catch (error) {
     res
       .status(400)
-      .json({ message: "Error occurred while updating the order." });
+      .json({ message: "Error occurred while updating the order.",error:error.message });
   }
 };
 
@@ -85,21 +85,28 @@ exports.getOrderByStatus = async (req, res) => {
   let { page, pageSize, search, status } = req.params;
   page = Number(page) || 1;
   pageSize = Number(pageSize) || 3;
+  status = status || "0";
   search = search || "0";
   let skip = (page - 1) * pageSize;
   try {
     let query = {};
-    query["status"] = status;
+    if(status && status !== "0") {
+      query["status"] = status;
+    }
 
     if (search && search !== "0") {
       query.$or = [{ _id: search }];
     }
-
+    if(search==="0" && status==="0") {
+      query = {};
+    }
     let totalCount;
     if (search && search !== "0") {
       totalCount = await Order.countDocuments(query);
-    } else {
+    } else if(status && status !== "0") {
       totalCount = await Order.countDocuments({ status: status });
+    }else {
+      totalCount = await Order.countDocuments();
     }
 
     let orders = [];
@@ -108,14 +115,24 @@ exports.getOrderByStatus = async (req, res) => {
         .populate("user", "name email")
         .populate("items.book", "title price")
         .skip(skip)
-        .limit(pageSize);
-    } else {
+        .limit(pageSize)
+        .sort({ createdAt: -1 });
+    } else if(status && status !== "0") {
       orders = await Order.find({ status: status })
         .populate("user", "name email")
         .populate("items.book", "title price")
         .skip(skip)
-        .limit(pageSize);
+        .limit(pageSize)
+        .sort({ createdAt: -1 });
+    }else {
+      orders = await Order.find()
+        .populate("user", "name email")
+        .populate("items.book", "title price")
+        .skip(skip)
+        .limit(pageSize)
+        .sort({ createdAt: -1 });
     }
+
 
     res.status(200).json({ data: orders, totalCount });
   } catch (error) {

@@ -414,10 +414,10 @@ exports.searchBooksByTitle = async (req, res) => {
     const books = await Book.find({
       title: { $regex: new RegExp(bookTitle, "i") },
     })
-      .populate("author", "name") // Populate the author field with the name only
-      .populate("category", "name") // Populate the category field with the name only
-      .populate("publication", "name") // Populate the publication field with the name only
-      .select("title author category publication photo"); // Select specific fields to return
+      .populate("author") // Populate the author field with the name only
+      .populate("category") // Populate the category field with the name only
+      .populate("publication") // Populate the publication field with the name only
+      
 
     if (books.length === 0) {
       return res
@@ -430,7 +430,7 @@ exports.searchBooksByTitle = async (req, res) => {
     console.log(error);
     res
       .status(500)
-      .json({ message: "Error occurred while searching for books." });
+      .json({ message: "Error occurred while searching for books.",error:error });
   }
 };
 
@@ -452,5 +452,77 @@ exports.relatedBooks = async (req, res) => {
     res.json(related);
   } catch (err) {
     console.log(err);
+  }
+};
+
+
+exports.filterBooks = async (req, res) => {
+  try {
+    const { categories, minPrice, maxPrice, publications, authors,sort,perPage } = req.query;
+    const page=1;
+   
+    // Build your query based on the provided criteria
+    let query = {};
+
+    if (categories) {
+      // Find category by name
+      const category = await Category.findOne({ name: categories });
+
+      if (category) {
+        query['category'] = category._id;
+      }
+    }
+
+    // if (minPrice && maxPrice) {
+    //   query['price'] = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
+    // }
+    if (maxPrice) {
+      query.price = { $lte: Number(maxPrice) };
+    }
+    if (minPrice) {
+      query.price = { ...(query.price || {}), $gte: Number(minPrice) };
+    }
+    if (publications) {
+      // Find publication by name
+      const publication = await Publication.findOne({ name: publications });
+
+      if (publication) {
+        query['publication'] = publication._id;
+      }
+    }
+
+    if (authors) {
+      // Find publication by name
+      const author = await Writer.findOne({ name: authors });
+
+      if (author) {
+        query['author'] = author._id;
+      }
+    }
+
+    let sortOptions = {};
+    if (sort === "atoz") {
+      sortOptions.title = 1;
+    } else if (sort === "ztoa") {
+      sortOptions.title = -1;
+    }
+
+    const total = await Book.countDocuments(query);
+    // Perform the search with the constructed query
+    const filteredBooks = await Book.find(query)
+      .populate("author", "name")
+      .populate("category", "name")
+      .populate("publication", "name")
+      .sort(sortOptions)
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+
+    res.json({filteredBooks,total});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error occurred while filtering books.",
+      error: error.message,
+    });
   }
 };
