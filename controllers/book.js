@@ -458,7 +458,7 @@ exports.relatedBooks = async (req, res) => {
 
 
 // GET books written by a specific writer with pagination
-const getBooksByWriterId = async (req, res) => {
+exports.getBooksByWriterId = async (req, res) => {
   try {
     const writerId = req.params.authorId;
     let pageNo = Number(req.query.pageNo) || 1;
@@ -490,9 +490,7 @@ const getBooksByWriterId = async (req, res) => {
   }
 };
 
-module.exports = {
-  getBooksByWriterId,
-};
+
 
 
 
