@@ -1,3 +1,4 @@
+const Book = require("../models/book");
 const fs = require("fs");
 const Category = require("../models/category");
 const Publication = require("../models/publication");
