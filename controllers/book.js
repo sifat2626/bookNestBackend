@@ -455,7 +455,7 @@ exports.relatedBooks = async (req, res) => {
   }
 };
 
-const Book = require('../models/book');
+
 
 // GET books written by a specific writer with pagination
 const getBooksByWriterId = async (req, res) => {
