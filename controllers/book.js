@@ -390,7 +390,7 @@ exports.searchBooksByAuthor = async (req, res) => {
       .populate("author", "name") // Populate the author field with the name only
       .populate("category", "name") // Populate the category field with the name only
       .populate("publication", "name") // Populate the publication field with the name only
-      .select("title author category publication"); // Select specific fields to return
+      .select("title author category publication photo"); // Select specific fields to return
 
     if (books.length === 0) {
       return res
