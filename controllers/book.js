@@ -455,6 +455,46 @@ exports.relatedBooks = async (req, res) => {
   }
 };
 
+const Book = require('../models/book');
+
+// GET books written by a specific writer with pagination
+const getBooksByWriterId = async (req, res) => {
+  try {
+    const writerId = req.params.authorId;
+    let pageNo = Number(req.query.pageNo) || 1;
+    let perPage = Number(req.query.perPage) || 10;
+    let skipRow = (pageNo - 1) * perPage;
+
+    // Find total count of books by the specified writer
+    const totalBooks = await Book.countDocuments({ author: writerId });
+
+    // Find books written by the specified writer with pagination
+    const books = await Book.find({ author: writerId })
+      .populate('author', 'name')
+      .populate('category', 'name')
+      .populate('publication', 'name')
+      .skip(skipRow)
+      .limit(perPage);
+
+    if (books.length === 0) {
+      return res.status(404).json({ message: 'No books found by the specified writer.' });
+    }
+
+    res.json({ totalBooks, books });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Error occurred while retrieving books by the writer.',
+      error: error.message,
+    });
+  }
+};
+
+module.exports = {
+  getBooksByWriterId,
+};
+
+
 
 exports.filterBooks = async (req, res) => {
   try {

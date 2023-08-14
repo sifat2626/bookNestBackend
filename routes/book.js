@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 
-const { filterBooks,getAllBooks,bookList, getBookById, createBook, updateBook, deleteBook,searchBooksByTitle,searchBooksByCategory,searchBooksByPublication,searchBooksByAuthor,relatedBooks} = require('../controllers/book');
+const { filterBooks,getAllBooks,bookList, getBookById, createBook, updateBook, deleteBook,searchBooksByTitle,searchBooksByCategory,searchBooksByPublication,searchBooksByAuthor,relatedBooks,
+	getBooksByWriterId
+} = require('../controllers/book');
 const { requireSignin, isAdmin } = require('../middlewares/auth');
 
 // GET all books
@@ -12,6 +14,7 @@ router.get('/booklist/:pageNo/:perPage/:searchKeyword', bookList);
 // GET a specific book by ID
 router.get('/search/book/:id', getBookById);
 router.get('/similarbook/:bookId/:categoryId', relatedBooks);
+router.get('/author/:authorId', getBooksByWriterId);
 
 // CREATE a new book
 router.post('/books', requireSignin, isAdmin, createBook);
